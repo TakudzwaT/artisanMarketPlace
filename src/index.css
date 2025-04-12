@@ -1,0 +1,65 @@
+body{
+    background-image: url('./bg.png');
+    background-size : contain;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    vertical-align: auto;
+}
+
+h1{
+    text-align: center;
+    top: 20px;
+    margin-bottom: 50px;
+    color: white;
+    margin-bottom: 50%;
+    font-size: xx-large;
+}
+.emailinput, .loginpassword{
+    font-size: larger;
+    background:transparent;
+    color: white;
+    border-radius: 20%;
+    padding-left: 10%;
+    border-radius: 5px;
+}
+
+.container{
+    display: grid;
+    gap:20px;
+    grid-template-columns: 150%;
+}
+.loginbutton{
+    background-color: rgb(29, 63, 173);
+    border-radius: 20%;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: larger;
+    cursor: pointer;
+}
+.loginbutton:hover{
+    transform: scale(1.1);
+    transition: 2s;
+}
+.rem-con{
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-template-rows: 30px ;
+    align-items: center;
+}
+.rem-label{
+    color: aliceblue;
+}
+
+.Signupbutton{
+    background:transparent;
+    color: white;
+    font-size: larger;
+    border-radius: 20%;
+    border-radius: 5px;    
+}
+.Signupbutton:hover{
+    transform: scale(1.2);
+    transition: 2s;
+}
