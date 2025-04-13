@@ -8,8 +8,10 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test":"jest",
-    "start": "vite preview"
+    "test":"jest"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "jest": "^29.7.0",
