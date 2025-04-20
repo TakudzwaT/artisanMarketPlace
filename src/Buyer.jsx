@@ -1,6 +1,6 @@
 import Card from './card';
-
-function SellerTrack(prop){
+import Navigation from './nav';
+function BuyerTrack(prop){
     return(
        <>
        <Navigation></Navigation>
@@ -11,3 +11,4 @@ function SellerTrack(prop){
        </> 
     );
 }
+export default BuyerTrack;
