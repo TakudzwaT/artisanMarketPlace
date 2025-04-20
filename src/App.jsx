@@ -1,11 +1,12 @@
-import Login from "./Login";
-import IMAGE from "./bg.png"
-
+import Card from './card';
+import Navigation from "./nav";
 function App() {
 
   return (
     <>
-      <Login></Login>
+      <Navigation></Navigation>
+      
+
     </>
   );
 }
