@@ -1,11 +1,15 @@
-import Login from "./Login";
-import IMAGE from "./bg.png"
-
+import Card from './card';
+import Navigation from "./nav";
+import BuyerTrack from './Buyer';
+import SellerTrack from './sellerOrders';
 function App() {
 
   return (
     <>
-      <Login></Login>
+    
+      
+
+    <SellerTrack/>
     </>
   );
 }
