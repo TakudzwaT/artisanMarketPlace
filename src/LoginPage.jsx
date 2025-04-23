@@ -1,7 +1,6 @@
-// LoginPage.js
 import { auth, provider, db } from './firebase';
 import { signInWithPopup } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 
 export default function LoginPage() {
@@ -11,15 +10,20 @@ export default function LoginPage() {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
+      const userRef = doc(db, 'users', user.uid);
+      const userSnap = await getDoc(userRef);
 
-      // Store user data in Firestore
-      await setDoc(doc(db, 'users', user.uid), {
-        uid: user.uid,
-        name: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-        role: role,
-      });
+      if (!userSnap.exists()) {
+        alert('No account found. Please sign up first.');
+        return;
+      }
+
+      const userData = userSnap.data();
+
+      if (!userData[role.toLowerCase()]) {
+        alert(`You don't have a ${role} account. Please sign up as a ${role}.`);
+        return;
+      }
 
       console.log(`${role} logged in:`, user);
       if (role === 'Seller') navigate('/manage');
