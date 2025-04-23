@@ -9,12 +9,17 @@ import CreateStore from './components/CreateStore';
 import ManageStore from './components/ManageStore';
 import AddProduct from './components/AddProducts';
 import BuyerHome from './BuyerHome';
+import LandingPage from './landingPage';
+import LoginPage from './LoginPage';
+import SignupPage from './SignupPage';
 function App() {
 
   return (
     <Routes>
       
-      <Route path="/" element={<CreateStore/>} />
+      <Route path="/" element={<LandingPage/>} />
+      <Route path="/login" element={<LoginPage/>} />
+      <Route path="/signup" element={<SignupPage/>} />
       <Route path="/sellerOrders" element={<SellerTrack />} />
       <Route path="/buyerOrders" element={<BuyerTrack/>} />
       <Route path="/manage" element={<ManageStore />} />
