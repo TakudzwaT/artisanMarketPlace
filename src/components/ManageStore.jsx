@@ -47,63 +47,107 @@ export default function ManageStore() {
 
   return (
     <>
-    <Navi/>
-    <div className="container">
-      <header className="site-header"><div className="logo">Name of Website</div><nav><span>Orders</span></nav></header>
-      <main>
-        <h1>Welcome to {store.name}</h1>
-        <div className="toolbar">
-          <input type="search" placeholder="Search products..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-          <button className="btn-secondary" onClick={() => navigate('/add-product')}>Add New Product</button>
-          <button className="btn-delete" onClick={openDelete}>Delete Product</button>
-        </div>
-        <table className="product-table">
-          <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
-          <tbody>
-            {filtered.length === 0
-              ? <tr><td colSpan="7" style={{ textAlign: 'center' }}>No products match your search</td></tr>
-              : filtered.map(p => (
-                  <tr key={p.id}>
-                    <td><img src={p.imageUrl} alt={p.name} className="img-placeholder" /></td>
-                    <td>{p.name}</td>
-                    <td>{p.category}</td>
-                    <td>{p.price}</td>
-                    <td>{p.stock}</td>
-                    <td><span className={`status-pill ${p.status==='Out of Stock'?'out-of-stock':'active'}`}>{p.status}</span></td>
-                    <td><button className="btn-update" onClick={()=>updateStock(p.id)}>Update</button></td>
-                  </tr>
-                ))}
-          </tbody>
-        </table>
+      <Navi />
+      <section className="container">
+        <header className="site-header">
+          <h1>Store Manager</h1>
+          <nav>
+            <a href="/orders">Orders</a>
+          </nav>
+        </header>
 
-        {showModal && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <h2>Select Product to Delete</h2>
-              <ul>
-                {products.map(p => (
-                  <li key={p.id}>
-                    <label>
-                      <input
-                        type="radio"
-                        name="delete"
-                        value={p.id}
-                        checked={toDeleteId===p.id}
-                        onChange={() => setToDeleteId(p.id)}
-                      /> {p.name}
-                    </label>
-                  </li>
-                ))}
-              </ul>
-              <div className="modal-actions">
-                <button className="btn-delete" onClick={confirmDelete} disabled={!toDeleteId}>Confirm</button>
-                <button className="btn-secondary" onClick={closeDelete}>Cancel</button>
-              </div>
-            </div>
-          </div>
-        )}
-      </main>
-    </div>
+        <main>
+          <section>
+            <h2>Welcome to {store.name}</h2>
+            <form className="toolbar" role="search" onSubmit={e => e.preventDefault()}>
+              <input
+                type="search"
+                placeholder="Search products..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                aria-label="Search products"
+              />
+              <button type="button" className="btn-secondary" onClick={() => navigate('/add-product')}>
+                Add New Product
+              </button>
+              <button type="button" className="btn-delete" onClick={openDelete}>
+                Delete Product
+              </button>
+            </form>
+
+            <article>
+              <table className="product-table">
+                <thead>
+                  <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: 'center' }}>
+                        No products match your search
+                      </td>
+                    </tr>
+                  ) : (
+                    filtered.map(p => (
+                      <tr key={p.id}>
+                        <td><img src={p.imageUrl} alt={p.name} className="img-placeholder" /></td>
+                        <td>{p.name}</td>
+                        <td>{p.category}</td>
+                        <td>{p.price}</td>
+                        <td>{p.stock}</td>
+                        <td>
+                          {p.status === 'Out of Stock'
+                            ? <mark className="out-of-stock">{p.status}</mark>
+                            : <strong className="active">{p.status}</strong>}
+                        </td>
+                        <td>
+                          <button className="btn-update" onClick={() => updateStock(p.id)}>Update</button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </article>
+          </section>
+
+          {showModal && (
+            <section className="modal-overlay" role="dialog" aria-modal="true">
+              <section className="modal">
+                <h3>Select Product to Delete</h3>
+                <ul>
+                  {products.map(p => (
+                    <li key={p.id}>
+                      <label>
+                        <input
+                          type="radio"
+                          name="delete"
+                          value={p.id}
+                          checked={toDeleteId === p.id}
+                          onChange={() => setToDeleteId(p.id)}
+                        />
+                        {p.name}
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+                <footer className="modal-actions">
+                  <button className="btn-delete" onClick={confirmDelete} disabled={!toDeleteId}>Confirm</button>
+                  <button className="btn-secondary" onClick={closeDelete}>Cancel</button>
+                </footer>
+              </section>
+            </section>
+          )}
+        </main>
+      </section>
     </>
   );
 }

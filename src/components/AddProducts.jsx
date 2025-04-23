@@ -5,11 +5,13 @@ import { collection, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { v4 as uuidv4 } from 'uuid';
+import LoadingBar from './LoadingBar';
 
 export default function AddProduct() {
   const navigate = useNavigate();
   const storeId = localStorage.getItem('storeId');
   const [product, setProduct] = useState({ imageFile: null, name: '', category: '', price: '', stock: '' });
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleChange = e => {
     const { name, files, value } = e.target;
@@ -22,34 +24,44 @@ export default function AddProduct() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    // upload image to Storage
-    const imageId = uuidv4();
-    const storageRef = ref(storage, `stores/${storeId}/products/${imageId}`);
-    await uploadBytes(storageRef, product.imageFile);
-    const imageUrl = await getDownloadURL(storageRef);
+    if (isUploading) return;
+    setIsUploading(true);
 
-    // save product with imageUrl
-    await addDoc(collection(db, 'stores', storeId, 'products'), {
-      name: product.name,
-      category: product.category,
-      price: product.price,
-      stock: parseInt(product.stock, 10),
-      status: 'Active',
-      imageUrl
-    });
+    try {
+      const imageId = uuidv4();
+      const storageRef = ref(storage, `stores/${storeId}/products/${imageId}`);
+      await uploadBytes(storageRef, product.imageFile);
+      const imageUrl = await getDownloadURL(storageRef);
 
-    navigate('/manage');
+      await addDoc(collection(db, 'stores', storeId, 'products'), {
+        name: product.name,
+        category: product.category,
+        price: product.price,
+        stock: parseInt(product.stock, 10),
+        status: 'Active',
+        imageUrl
+      });
+
+      navigate('/manage');
+    } catch (error) {
+      console.error("Error uploading product:", error);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
-    <div className="container">
+    <section className="container">
       <header className="site-header">
-        <div className="logo">Name of Website</div>
+        <figure className="logo" aria-label="Store Logo" />
       </header>
       <main>
         <h1>Add New Product</h1>
+        {isUploading && <LoadingBar />}
         <form onSubmit={handleSubmit} className="form">
-          <div className="form-group">
+          <fieldset>
+            <legend>Product Information</legend>
+
             <label htmlFor="imageFile">Product Image</label>
             <input
               id="imageFile"
@@ -59,8 +71,7 @@ export default function AddProduct() {
               onChange={handleChange}
               required
             />
-          </div>
-          <div className="form-group">
+
             <label htmlFor="name">Product Name</label>
             <input
               type="text"
@@ -71,8 +82,7 @@ export default function AddProduct() {
               placeholder="Enter product name"
               required
             />
-          </div>
-          <div className="form-group">
+
             <label htmlFor="category">Category</label>
             <input
               type="text"
@@ -83,8 +93,7 @@ export default function AddProduct() {
               placeholder="Enter product category"
               required
             />
-          </div>
-          <div className="form-group">
+
             <label htmlFor="price">Price</label>
             <input
               type="text"
@@ -95,8 +104,7 @@ export default function AddProduct() {
               placeholder="Enter price (e.g., R250)"
               required
             />
-          </div>
-          <div className="form-group">
+
             <label htmlFor="stock">Quantity</label>
             <input
               type="number"
@@ -107,10 +115,13 @@ export default function AddProduct() {
               placeholder="Enter stock quantity"
               required
             />
-          </div>
-          <button type="submit" className="btn-primary">Save Product</button>
+          </fieldset>
+
+          <button type="submit" className="btn-primary" disabled={isUploading}>
+            {isUploading ? "Saving..." : "Save Product"}
+          </button>
         </form>
       </main>
-    </div>
+    </section>
   );
 }
