@@ -1,16 +1,27 @@
-import Card from './card';
-import Navigation from "./nav";
+import Card from './components/card';
+import Navigation from "./components/nav";
 import BuyerTrack from './Buyer';
 import SellerTrack from './sellerOrders';
+import React from 'react';
+import AboutUs from './About';
+import { Routes, Route } from 'react-router-dom';
+import CreateStore from './components/CreateStore';
+import ManageStore from './components/ManageStore';
+import AddProduct from './components/AddProducts';
+import BuyerHome from './BuyerHome';
 function App() {
 
   return (
-    <>
-    
+    <Routes>
       
-
-    <SellerTrack/>
-    </>
+      <Route path="/" element={<CreateStore/>} />
+      <Route path="/sellerOrders" element={<SellerTrack />} />
+      <Route path="/buyerOrders" element={<BuyerTrack/>} />
+      <Route path="/manage" element={<ManageStore />} />
+      <Route path="/add-product" element={<AddProduct />} />
+      <Route path="/buyer" element={<BuyerHome />} />
+      <Route path="/about" element={<AboutUs/>} />
+    </Routes>
   );
 }
 

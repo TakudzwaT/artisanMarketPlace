@@ -1,5 +1,5 @@
-import Card from './card';
-import Navigation from './nav';
+import Card from './components/card';
+import Navigation from './components/nav';
 function BuyerTrack(prop){
     return(
        <>
