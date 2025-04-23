@@ -1,0 +1,41 @@
+import { useState } from "react";
+import "./Navigation.css";
+
+function Navi() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  return (
+    <nav className="navigation">
+      <h1>Artisan Marketplace</h1>
+      
+      {/* Desktop navigation */}
+      <ul className="desktop-menu">
+        <li><a href="/">Home</a></li>
+        <li><a href="/manage">Manage Store</a></li>
+        <li><a href="/sellerOrders">Orders</a></li>       
+        <li><a href="/about">About Us</a></li>
+      </ul>
+      
+      {/* Mobile menu button */}
+      <button 
+        className="mobile-menu-button"
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+      >
+        {isMenuOpen ? "✕" : "☰"}
+      </button>
+      
+      {/* Mobile menu */}
+      {isMenuOpen && (
+        <ul className="mobile-menu">
+          <li><a href="/">Home</a></li>
+          <li><a href="/manage">Manage Store</a></li>
+        <li><a href="/sellerOrders">Orders</a></li>
+        <li><a href="/about">About Us</a></li>
+          
+        </ul>
+      )}
+    </nav>
+  );
+}
+
+export default Navi;
