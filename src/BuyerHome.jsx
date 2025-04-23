@@ -1,6 +1,6 @@
 import { useState } from "react";
-
-import Navigation from "./Navigation/Nav.jsx";
+import Navigation from "./components/nav.jsx";
+import Navi from "./Navigation/Nav.jsx";
 import Products from "./Products/Products.jsx";
 import products from "./dbs/data";
 import Recommended from "./Recommended/Recommended.jsx";
@@ -71,8 +71,9 @@ function BuyerHome() {
 
   return (
     <>
+      <Navigation />
       <Sidebar handleChange={handleChange} />
-      <Navigation query={query} handleInputChange={handleInputChange} />
+      <Navi query={query} handleInputChange={handleInputChange} />
       <Recommended handleClick={handleClick} />
       <Products result={result} />
       

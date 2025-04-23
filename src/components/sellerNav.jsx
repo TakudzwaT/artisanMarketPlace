@@ -10,7 +10,7 @@ function Navi() {
       
       {/* Desktop navigation */}
       <ul className="desktop-menu">
-        <li><a href="/">Home</a></li>
+        <li><a href="/">Logout</a></li>
         <li><a href="/manage">Manage Store</a></li>
         <li><a href="/sellerOrders">Orders</a></li>       
         <li><a href="/about">About Us</a></li>
@@ -27,7 +27,7 @@ function Navi() {
       {/* Mobile menu */}
       {isMenuOpen && (
         <ul className="mobile-menu">
-          <li><a href="/">Home</a></li>
+          <li><a href="/">Logout</a></li>
           <li><a href="/manage">Manage Store</a></li>
         <li><a href="/sellerOrders">Orders</a></li>
         <li><a href="/about">About Us</a></li>

@@ -1,14 +1,31 @@
+// SignupPage.js
+import { auth, provider, db } from './firebase';
+import { signInWithPopup } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 
 export default function SignupPage() {
   const navigate = useNavigate();
 
-  const handleBuyerSignup = () => {
-    navigate('/buyer'); // or wherever you want the buyer to go after signup
-  };
+  const signup = async (role) => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
 
-  const handleSellerSignup = () => {
-    navigate('/sellerOrders'); // or the appropriate seller route
+      // Save to Firestore using uid as ID
+      await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
+        name: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        role: role,
+      });
+
+      console.log(`${role} signed up:`, user);
+      role === 'Seller' ? navigate('/createStore') : navigate('/buyer');
+    } catch (error) {
+      console.error('Signup Error:', error);
+    }
   };
 
   return (
@@ -24,7 +41,7 @@ export default function SignupPage() {
       <h2 style={{ color: '#4B3621' }}>Sign up for Artisan Market</h2>
       <section>
         <button
-          onClick={handleBuyerSignup}
+          onClick={() => signup('Buyer')}
           style={{
             margin: '1rem',
             padding: '0.75rem 1.5rem',
@@ -36,7 +53,7 @@ export default function SignupPage() {
           Sign up with Google (Buyer)
         </button>
         <button
-          onClick={handleSellerSignup}
+          onClick={() => signup('Seller')}
           style={{
             margin: '1rem',
             padding: '0.75rem 1.5rem',
@@ -51,5 +68,3 @@ export default function SignupPage() {
     </main>
   );
 }
-
-  
