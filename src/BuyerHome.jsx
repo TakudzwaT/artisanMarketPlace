@@ -1,84 +1,83 @@
-import { useState } from "react";
-import Navigation from "./components/nav.jsx";
-import Navi from "./Navigation/Nav.jsx";
-import Products from "./Products/Products.jsx";
-import products from "./dbs/data";
-import Recommended from "./Recommended/Recommended.jsx";
-import Sidebar from "./Sidebar/Sidebar.jsx";
-import Card from "./components/BuyerHomeCard.jsx";
-import "./styling/BuyerHome.css";
+import { useEffect, useState } from "react";
+import { collectionGroup, getDocs } from "firebase/firestore";
+import { db } from "./firebase"; // Adjust path as needed
+import Products from "./Products/Products";
+import Recommended from "./Recommended/Recommended";
+import Sidebar from "./Sidebar/Sidebar";
 
-function BuyerHome() {
-  const [selectedCategory, setSelectedCategory] = useState(null);
+const BuyerHome = () => {
+  const [products, setProducts] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedPrice, setSelectedPrice] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
 
-  // ----------- Input Filter -----------
-  const [query, setQuery] = useState("");
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const snapshot = await getDocs(collectionGroup(db, "products"));
+        const items = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setProducts(items);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
 
-  const handleInputChange = (event) => {
-    setQuery(event.target.value);
+    fetchProducts();
+  }, []);
+
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
   };
 
-  const filteredItems = products.filter(
-    (product) => product.title.toLowerCase().indexOf(query.toLowerCase()) !== -1
-  );
-
-  // ----------- Radio Filtering -----------
-  const handleChange = (event) => {
-    setSelectedCategory(event.target.value);
+  const handleRecommendedClick = (value) => {
+    setSelectedCategory(value);
   };
 
-  // ------------ Button Filtering -----------
-  const handleClick = (event) => {
-    setSelectedCategory(event.target.value);
+  const handlePriceChange = (e) => {
+    setSelectedPrice(e.target.value);
   };
 
-  function filteredData(products, selected, query) {
-    let filteredProducts = products;
+  const handleColorChange = (e) => {
+    setSelectedColor(e.target.value);
+  };
 
-    // Filtering Input Items
-    if (query) {
-      filteredProducts = filteredItems;
-    }
+  const filteredData = () => {
+    return products
+      .filter((product) => {
+        const matchCategory = selectedCategory
+          ? product.category?.toLowerCase() === selectedCategory.toLowerCase()
+          : true;
+        const matchPrice = selectedPrice
+          ? Number(product.newPrice) <= Number(selectedPrice)
+          : true;
+        const matchColor = selectedColor
+          ? product.color?.toLowerCase() === selectedColor.toLowerCase()
+          : true;
 
-    // Applying selected filter
-    if (selected) {
-      filteredProducts = filteredProducts.filter(
-        ({ category, color, company, newPrice, title }) =>
-          category === selected ||
-          color === selected ||
-          company === selected ||
-          newPrice === selected ||
-          title === selected
-      );
-    }
-
-    return filteredProducts.map(
-      ({ img, title, star, reviews, prevPrice, newPrice }) => (
-        <Card
-          key={Math.random()}
-          img={img}
-          title={title}
-          star={star}
-          reviews={reviews}
-          prevPrice={prevPrice}
-          newPrice={newPrice}
-        />
-      )
-    );
-  }
-
-  const result = filteredData(products, selectedCategory, query);
+        return matchCategory && matchPrice && matchColor;
+      })
+      .map((product) => (
+        <div key={product.id} className="card">
+          <img src={product.imageUrl || "placeholder.jpg"} alt={product.name || "Product"} />
+          <h3>{product.name || "Untitled"}</h3>
+          <p>⭐ {product.star || 0} ({product.reviews || 0} reviews)</p>
+          <p><del>R{product.price || 0}</del> <strong>R{product.price || 0}</strong></p>
+        </div>
+      ));
+  };
 
   return (
-    <>
-      <Navigation />
-      <Sidebar handleChange={handleChange} />
-      <Navi query={query} handleInputChange={handleInputChange} />
-      <Recommended handleClick={handleClick} />
-      <Products result={result} />
-      
-    </>
+    <div className="buyer-home-container">
+      <Sidebar handleChange={handleCategoryChange} />
+      <main className="main-content">
+        <Recommended handleClick={handleRecommendedClick} />
+        <Products result={filteredData()} />
+      </main>
+    </div>
   );
-}
+};
 
 export default BuyerHome;

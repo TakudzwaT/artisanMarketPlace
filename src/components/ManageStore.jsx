@@ -51,9 +51,7 @@ export default function ManageStore() {
       <section className="container">
         <header className="site-header">
           <h1>Store Manager</h1>
-          <nav>
-            <a href="/orders">Orders</a>
-          </nav>
+          
         </header>
 
         <main>

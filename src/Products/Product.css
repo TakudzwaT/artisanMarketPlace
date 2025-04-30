@@ -14,7 +14,11 @@
   }
   
   .card-img {
-    width: 13rem;
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
     margin-bottom: 1rem;
   }
   

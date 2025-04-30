@@ -1,5 +1,3 @@
-// src/components/CreateStore.js
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { doc, setDoc } from 'firebase/firestore';
@@ -8,7 +6,13 @@ import Navi from "./sellerNav";
 
 export default function CreateStore() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', bio: '', payment: 'card', delivery: [] });
+  const [form, setForm] = useState({
+    name: '',
+    bio: '',
+    payment: 'card',
+    delivery: [],
+    category: 'Jewelery' // Default value
+  });
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
@@ -40,6 +44,7 @@ export default function CreateStore() {
       ownerEmail: user.email,
       storeName: form.name,
       storeBio: form.bio,
+      category: form.category,
       paymentMethod: form.payment,
       deliveryOptions: form.delivery,
       createdAt: new Date().toISOString()
@@ -80,6 +85,20 @@ export default function CreateStore() {
                 value={form.bio}
                 onChange={handleChange}
               />
+            </label>
+            <label>
+              Category
+              <select
+                name="category"
+                value={form.category}
+                onChange={handleChange}
+                required
+              >
+                <option value="Jewelery">Jewelery</option>
+                <option value="Textile">Textile</option>
+                <option value="Woodwork">Woodwork</option>
+                <option value="Ceramics">Ceramics</option>
+              </select>
             </label>
           </section>
 
