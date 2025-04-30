@@ -31,7 +31,6 @@ export default function SignupPage() {
         });
       }
 
-      // ✅ Store the UID in localStorage for app-wide use
       localStorage.setItem('storeId', user.uid);
 
       console.log(`${role} signed up:`, user);

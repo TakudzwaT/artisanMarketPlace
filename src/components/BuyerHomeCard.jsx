@@ -1,6 +1,4 @@
-
-
-
+import React from 'react';
 import { BsFillBagFill } from "react-icons/bs";
 import "./BuyerHomeCard.css";
 

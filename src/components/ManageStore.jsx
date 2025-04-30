@@ -161,7 +161,7 @@ export default function ManageStore() {
 
         <main>
           <section>
-            <h2>Welcome to {store.name}</h2>
+            <h2>Welcome to {store.storeName}</h2>
             <form className="toolbar" role="search" onSubmit={e => e.preventDefault()}>
               <input
                 type="search"

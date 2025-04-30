@@ -27,7 +27,6 @@ export default function LoginPage() {
         return;
       }
 
-      // ✅ Save UID to localStorage for future use (e.g., storeId)
       localStorage.setItem('storeId', user.uid);
 
       console.log(`${role} logged in:`, user);

@@ -21,7 +21,7 @@ export default function LoadingBar({ duration = 3000 }) {
   }, [duration]);
 
   return (
-    <section className="loading-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={percent}>
+    <section className="loading-bar" data-testid="loading-wrapper" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow={percent}>
       <progress className="fill" value={percent} max="100" />
       <figure className="handle" style={{ left: `${percent}%` }}>
         <figcaption className="percent-label">{percent}%</figcaption>
