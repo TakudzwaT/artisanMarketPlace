@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { doc, getDoc, collection, query, onSnapshot, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import Navi from "./sellerNav";
 
 export default function ManageStore() {
@@ -15,47 +15,54 @@ export default function ManageStore() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Get storeId and validate it
-    const id = localStorage.getItem('storeId');
-    
-    if (!id) {
-      setError('Store ID not found. Please login again.');
-      return;
-    }
-    
-    setStoreId(id);
-    
-    // Fetch store data
-    const fetchStore = async () => {
+    // Check if user is authenticated
+    const unsubscribeAuth = auth.onAuthStateChanged(async (user) => {
+      if (!user) {
+        setError('Please login to access your store');
+        return;
+      }
+      
+      const uid = user.uid;
+      setStoreId(uid);
+      
+      // Fetch store data - using uid as storeId
       try {
-        const storeDoc = await getDoc(doc(db, 'stores', id));
+        const storeDoc = await getDoc(doc(db, 'stores', uid));
         if (storeDoc.exists()) {
           setStore(storeDoc.data());
         } else {
-          setError('Store not found');
+          // Check if user has a seller account
+          const userDoc = await getDoc(doc(db, 'users', uid));
+          if (userDoc.exists() && userDoc.data().seller) {
+            setStore({ name: user.displayName + "'s Store" });
+          } else {
+            setError('No store found for this account');
+          }
         }
       } catch (err) {
         console.error('Error fetching store:', err);
         setError('Failed to load store data');
       }
-    };
-    
-    fetchStore();
-    
-    // Set up products listener
-    const q = query(collection(db, 'stores', id, 'products'));
-    const unsubscribe = onSnapshot(q, 
-      (querySnapshot) => {
-        setProducts(querySnapshot.docs.map(d => ({ id: d.id, ...d.data() })));
-      },
-      (err) => {
-        console.error('Error loading products:', err);
-        setError('Failed to load products');
+      
+      // Set up products listener
+      if (uid) {
+        const q = query(collection(db, 'stores', uid, 'products'));
+        const unsubscribe = onSnapshot(q, 
+          (querySnapshot) => {
+            setProducts(querySnapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+          },
+          (err) => {
+            console.error('Error loading products:', err);
+            setError('Failed to load products');
+          }
+        );
+        
+        return () => unsubscribe();
       }
-    );
+    });
     
-    // Clean up listener on unmount
-    return () => unsubscribe();
+    // Clean up auth listener on unmount
+    return () => unsubscribeAuth();
   }, []);
 
   const openDelete = () => setShowModal(true);
@@ -74,7 +81,11 @@ export default function ManageStore() {
   };
 
   const updateStock = async (id) => {
-    if (!storeId) return;
+    if (!storeId) {
+      alert('Authentication error. Please login again.');
+      navigate('/login');
+      return;
+    }
     
     const qty = parseInt(window.prompt('Enter new stock quantity:'), 10);
     if (isNaN(qty)) return;
@@ -114,6 +125,25 @@ export default function ManageStore() {
               >
                 Back to Login
               </button>
+            </div>
+          </main>
+        </section>
+      </>
+    );
+  }
+  
+  // Show loading state while waiting for auth
+  if (!storeId) {
+    return (
+      <>
+        <Navi />
+        <section className="container">
+          <header className="site-header">
+            <h1>Store Manager</h1>
+          </header>
+          <main>
+            <div className="loading-message">
+              <h2>Loading store information...</h2>
             </div>
           </main>
         </section>

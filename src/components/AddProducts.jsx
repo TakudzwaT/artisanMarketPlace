@@ -6,6 +6,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { v4 as uuidv4 } from 'uuid';
 import LoadingBar from './LoadingBar';
+import "./ManageandCreate.css";
 
 export default function AddProduct() {
   const navigate = useNavigate();

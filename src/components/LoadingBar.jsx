@@ -1,6 +1,6 @@
 /* ----- src/components/LoadingBar.js ----- */
 import React, { useState, useEffect } from 'react';
-import './../LoadingBar.css';
+import './LoadingBar.css';
 
 export default function LoadingBar({ duration = 3000 }) {
   const [percent, setPercent] = useState(0);

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from './../firebase';
 import Navi from "./sellerNav";
+import "./ManageandCreate.css";
 
 export default function CreateStore() {
   const navigate = useNavigate();
