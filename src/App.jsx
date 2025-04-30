@@ -1,5 +1,4 @@
 import Card from './components/card';
-import Navigation from "./components/nav";
 import BuyerTrack from './Buyer';
 import SellerTrack from './sellerOrders';
 import React from 'react';

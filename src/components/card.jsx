@@ -1,3 +1,5 @@
+import "./TrackCard.css"
+
 function Card(prop) {
     // Function to determine the status color
     const getStatusColor = () => {

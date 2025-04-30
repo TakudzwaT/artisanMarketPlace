@@ -1,10 +1,12 @@
-import "./Product.css";
+import "./Products.css";
 
 const Products = ({ result }) => {
   return (
-    <>
-      <section className="card-container">{result}</section>
-    </>
+    <section className="products-section">
+      <div className="products-card-container">
+        {result}
+      </div>
+    </section>
   );
 };
 

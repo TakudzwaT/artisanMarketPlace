@@ -1,4 +1,3 @@
-/* ----- src/components/ManageStore.js ----- */
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { doc, getDoc, collection, query, onSnapshot, updateDoc, deleteDoc } from 'firebase/firestore';
@@ -7,36 +6,88 @@ import Navi from "./sellerNav";
 
 export default function ManageStore() {
   const navigate = useNavigate();
-  const storeId = localStorage.getItem('storeId');
-  const [store, setStore] = useState({ name: '' });
+  const [storeId, setStoreId] = useState(null);
+  const [store, setStore] = useState({ name: 'Loading...' });
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [toDeleteId, setToDeleteId] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    getDoc(doc(db, 'stores', storeId)).then(snap => setStore(snap.data()));
-    const q = query(collection(db, 'stores', storeId, 'products'));
-    return onSnapshot(q, snap => {
-      setProducts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    });
-  }, [storeId]);
+    // Get storeId and validate it
+    const id = localStorage.getItem('storeId');
+    
+    if (!id) {
+      setError('Store ID not found. Please login again.');
+      return;
+    }
+    
+    setStoreId(id);
+    
+    // Fetch store data
+    const fetchStore = async () => {
+      try {
+        const storeDoc = await getDoc(doc(db, 'stores', id));
+        if (storeDoc.exists()) {
+          setStore(storeDoc.data());
+        } else {
+          setError('Store not found');
+        }
+      } catch (err) {
+        console.error('Error fetching store:', err);
+        setError('Failed to load store data');
+      }
+    };
+    
+    fetchStore();
+    
+    // Set up products listener
+    const q = query(collection(db, 'stores', id, 'products'));
+    const unsubscribe = onSnapshot(q, 
+      (querySnapshot) => {
+        setProducts(querySnapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+      },
+      (err) => {
+        console.error('Error loading products:', err);
+        setError('Failed to load products');
+      }
+    );
+    
+    // Clean up listener on unmount
+    return () => unsubscribe();
+  }, []);
 
   const openDelete = () => setShowModal(true);
   const closeDelete = () => { setShowModal(false); setToDeleteId(null); };
 
   const confirmDelete = async () => {
-    if (toDeleteId) {
+    if (!toDeleteId || !storeId) return;
+    
+    try {
       await deleteDoc(doc(db, 'stores', storeId, 'products', toDeleteId));
       closeDelete();
+    } catch (err) {
+      console.error('Error deleting product:', err);
+      alert('Failed to delete product');
     }
   };
 
-  const updateStock = async id => {
+  const updateStock = async (id) => {
+    if (!storeId) return;
+    
     const qty = parseInt(window.prompt('Enter new stock quantity:'), 10);
-    if (!isNaN(qty)) {
+    if (isNaN(qty)) return;
+    
+    try {
       const refDoc = doc(db, 'stores', storeId, 'products', id);
-      await updateDoc(refDoc, { stock: qty, status: qty > 0 ? 'Active' : 'Out of Stock' });
+      await updateDoc(refDoc, { 
+        stock: qty, 
+        status: qty > 0 ? 'Active' : 'Out of Stock' 
+      });
+    } catch (err) {
+      console.error('Error updating stock:', err);
+      alert('Failed to update stock');
     }
   };
 
@@ -45,13 +96,37 @@ export default function ManageStore() {
     p.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // If there's an error, show error message
+  if (error) {
+    return (
+      <>
+        <Navi />
+        <section className="container">
+          <header className="site-header">
+            <h1>Store Manager</h1>
+          </header>
+          <main>
+            <div className="error-message">
+              <h2>{error}</h2>
+              <button 
+                className="btn-secondary" 
+                onClick={() => navigate('/login')}
+              >
+                Back to Login
+              </button>
+            </div>
+          </main>
+        </section>
+      </>
+    );
+  }
+
   return (
     <>
       <Navi />
       <section className="container">
         <header className="site-header">
           <h1>Store Manager</h1>
-          
         </header>
 
         <main>
@@ -65,10 +140,19 @@ export default function ManageStore() {
                 onChange={e => setSearchTerm(e.target.value)}
                 aria-label="Search products"
               />
-              <button type="button" className="btn-secondary" onClick={() => navigate('/add-product')}>
+              <button 
+                type="button" 
+                className="btn-secondary" 
+                onClick={() => navigate('/add-product')}
+              >
                 Add New Product
               </button>
-              <button type="button" className="btn-delete" onClick={openDelete}>
+              <button 
+                type="button" 
+                className="btn-delete" 
+                onClick={openDelete}
+                disabled={products.length === 0}
+              >
                 Delete Product
               </button>
             </form>
@@ -90,13 +174,23 @@ export default function ManageStore() {
                   {filtered.length === 0 ? (
                     <tr>
                       <td colSpan="7" style={{ textAlign: 'center' }}>
-                        No products match your search
+                        {products.length === 0 ? "No products found" : "No products match your search"}
                       </td>
                     </tr>
                   ) : (
                     filtered.map(p => (
                       <tr key={p.id}>
-                        <td><img src={p.imageUrl} alt={p.name} className="img-placeholder" /></td>
+                        <td>
+                          <img 
+                            src={p.imageUrl || '/placeholder-image.png'} 
+                            alt={p.name} 
+                            className="img-placeholder" 
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = '/placeholder-image.png';
+                            }}
+                          />
+                        </td>
                         <td>{p.name}</td>
                         <td>{p.category}</td>
                         <td>{p.price}</td>
@@ -107,7 +201,12 @@ export default function ManageStore() {
                             : <strong className="active">{p.status}</strong>}
                         </td>
                         <td>
-                          <button className="btn-update" onClick={() => updateStock(p.id)}>Update</button>
+                          <button 
+                            className="btn-update" 
+                            onClick={() => updateStock(p.id)}
+                          >
+                            Update
+                          </button>
                         </td>
                       </tr>
                     ))
@@ -138,8 +237,19 @@ export default function ManageStore() {
                   ))}
                 </ul>
                 <footer className="modal-actions">
-                  <button className="btn-delete" onClick={confirmDelete} disabled={!toDeleteId}>Confirm</button>
-                  <button className="btn-secondary" onClick={closeDelete}>Cancel</button>
+                  <button 
+                    className="btn-delete" 
+                    onClick={confirmDelete} 
+                    disabled={!toDeleteId}
+                  >
+                    Confirm
+                  </button>
+                  <button 
+                    className="btn-secondary" 
+                    onClick={closeDelete}
+                  >
+                    Cancel
+                  </button>
                 </footer>
               </section>
             </section>

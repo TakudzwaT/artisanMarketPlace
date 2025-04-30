@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import "./TrackCard.css"
 
 function Card(prop) {
   // Add state for managing the selected status

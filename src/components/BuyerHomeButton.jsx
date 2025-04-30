@@ -1,3 +1,5 @@
+//BuyerHomeButton.jsx
+
 const Button = ({ onClickHandler, value, title }) => {
     return (
       <button onClick={onClickHandler} value={value} className="btns">

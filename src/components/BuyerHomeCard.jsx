@@ -1,31 +1,59 @@
+
+
+
 import { BsFillBagFill } from "react-icons/bs";
+import "./BuyerHomeCard.css";
 
-const Card = ({ img, title, star, reviews, prevPrice, newPrice }) => {
+const BuyerHomeCard = ({ img, title, star, reviews, prevPrice, newPrice }) => {
+  // Create star display
+  const renderStars = () => {
+    const starsDisplay = [];
+    const rating = parseInt(star) || 0;
+    
+    for (let i = 0; i < 5; i++) {
+      starsDisplay.push(
+        <span key={i} className={i < rating ? "rating-star filled" : "rating-star"}>
+          ★
+        </span>
+      );
+    }
+    
+    return starsDisplay;
+  };
+
   return (
-    <article className="card">
-      <figure>
-        <img src={img} alt={title} className="card-img" />
-        <figcaption className="sr-only">{title}</figcaption>
-      </figure>
-
-      <header className="card-details">
-        <h3 className="card-title">{title}</h3>
-        <section className="card-reviews" aria-label="Product reviews">
-          {star} {star} {star} {star}
-          <section className="total-reviews">{reviews}</section>
-        </section>
-      </header>
-
-      <footer className="card-price">
-        <section className="price">
-          <del>{prevPrice}</del> {newPrice}
-        </section>
-        <button className="bag" aria-label="Add to cart">
-          <BsFillBagFill className="bag-icon" />
-        </button>
-      </footer>
+    <article className="buyer-card">
+      <div className="buyer-card-image-container">
+        <img 
+          src={img || "/placeholder.jpg"} 
+          alt={title || "Product"} 
+          className="buyer-card-img" 
+        />
+      </div>
+      
+      <div className="buyer-card-details">
+        <h3 className="buyer-card-title">{title || "Product"}</h3>
+        
+        <div className="buyer-card-reviews">
+          <div className="buyer-star-rating">
+            {renderStars()}
+          </div>
+          <span className="buyer-total-reviews">({reviews || 0})</span>
+        </div>
+        
+        <div className="buyer-card-price">
+          <div className="buyer-price">
+            {prevPrice && <del className="buyer-prev-price">{prevPrice}</del>}
+            <span className="buyer-new-price">{newPrice}</span>
+          </div>
+          
+          <button className="buyer-bag-button" aria-label="Add to cart">
+            <BsFillBagFill className="buyer-bag-icon" />
+          </button>
+        </div>
+      </div>
     </article>
   );
 };
 
-export default Card;
+export default BuyerHomeCard;
