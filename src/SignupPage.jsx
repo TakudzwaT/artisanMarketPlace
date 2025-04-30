@@ -1,3 +1,4 @@
+// src/pages/SignupPage.js
 import { auth, provider, db } from './firebase';
 import { signInWithPopup } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
@@ -19,7 +20,7 @@ export default function SignupPage() {
           [role.toLowerCase()]: true,
         });
       } else {
-        // New user
+        // Create new user with role
         await setDoc(userRef, {
           uid: user.uid,
           name: user.displayName,
@@ -30,20 +31,56 @@ export default function SignupPage() {
         });
       }
 
+      // ✅ Store the UID in localStorage for app-wide use
+      localStorage.setItem('storeId', user.uid);
+
       console.log(`${role} signed up:`, user);
       if (role === 'Seller') navigate('/createStore');
       else navigate('/buyer');
     } catch (error) {
       console.error('Signup Error:', error);
+      alert('Sign-up failed. Please try again.');
     }
   };
 
   return (
-    <main style={{ minHeight: '100vh', backgroundColor: '#FAF3E3', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'sans-serif' }}>
+    <main style={{
+      minHeight: '100vh',
+      backgroundColor: '#FAF3E3',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontFamily: 'sans-serif'
+    }}>
       <h2 style={{ color: '#4B3621' }}>Sign up for Artisan Market</h2>
       <section>
-        <button onClick={() => signup('Buyer')} style={{ margin: '1rem', padding: '0.75rem 1.5rem', backgroundColor: '#DBA159', color: 'white', border: 'none', borderRadius: '6px' }}>Sign up with Google (Buyer)</button>
-        <button onClick={() => signup('Seller')} style={{ margin: '1rem', padding: '0.75rem 1.5rem', backgroundColor: '#A9744F', color: 'white', border: 'none', borderRadius: '6px' }}>Sign up with Google (Seller)</button>
+        <button
+          onClick={() => signup('Buyer')}
+          style={{
+            margin: '1rem',
+            padding: '0.75rem 1.5rem',
+            backgroundColor: '#DBA159',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px'
+          }}
+        >
+          Sign up with Google (Buyer)
+        </button>
+        <button
+          onClick={() => signup('Seller')}
+          style={{
+            margin: '1rem',
+            padding: '0.75rem 1.5rem',
+            backgroundColor: '#A9744F',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px'
+          }}
+        >
+          Sign up with Google (Seller)
+        </button>
       </section>
     </main>
   );
