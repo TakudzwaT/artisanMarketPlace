@@ -1,10 +1,12 @@
-
-
-
-import { BsFillBagFill } from "react-icons/bs";
+import { BsFillBagFill, BsCart } from "react-icons/bs";
 import "./BuyerHomeCard.css";
+import { useCart } from "./CartContext";
+import { useNavigate } from "react-router-dom";
 
-const BuyerHomeCard = ({ img, title, star, reviews, prevPrice, newPrice }) => {
+const BuyerHomeCard = ({ img, title, star, reviews, prevPrice, newPrice, product = {} }) => {
+  const { dispatch, shoppingCart } = useCart();
+  const navigate = useNavigate();
+
   // Create star display
   const renderStars = () => {
     const starsDisplay = [];
@@ -19,6 +21,24 @@ const BuyerHomeCard = ({ img, title, star, reviews, prevPrice, newPrice }) => {
     }
     
     return starsDisplay;
+  };
+
+  const addToCart = () => {
+    dispatch({
+      type: 'ADD',
+      item: {
+        ProductID: product?.id || Date.now(), // Safe access with optional chaining
+        ProductName: title || "Product",
+        ProductImg: img || "/placeholder.jpg",
+        ProductPrice: newPrice || 0,
+        qty: 1,
+        TotalProductPrice: newPrice || 0
+      }
+    });
+  };
+
+  const viewCart = () => {
+    navigate('/cart'); // Make sure you have a route for '/cart'
   };
 
   return (
@@ -47,9 +67,26 @@ const BuyerHomeCard = ({ img, title, star, reviews, prevPrice, newPrice }) => {
             <span className="buyer-new-price">{newPrice}</span>
           </div>
           
-          <button className="buyer-bag-button" aria-label="Add to cart">
-            <BsFillBagFill className="buyer-bag-icon" />
-          </button>
+          <div className="buyer-card-actions">
+            <button 
+              className="buyer-bag-button" 
+              aria-label="Add to cart"
+              onClick={addToCart}
+            >
+              <BsFillBagFill className="buyer-bag-icon" />
+            </button>
+            
+            <button 
+              className="view-cart-button" 
+              onClick={viewCart}
+              disabled={shoppingCart.length === 0}
+            >
+              <BsCart className="cart-icon" />
+              {shoppingCart.length > 0 && (
+                <span className="cart-badge">{shoppingCart.length}</span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </article>

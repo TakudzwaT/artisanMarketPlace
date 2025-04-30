@@ -9,24 +9,31 @@ import ManageStore from './components/ManageStore';
 import AddProduct from './components/AddProducts';
 import BuyerHome from './BuyerHome';
 import LandingPage from './landingPage';
+import CartPage from './components/CartPage'; 
 import LoginPage from './LoginPage';
 import SignupPage from './SignupPage';
-function App() {
+import { CartProvider } from './components/CartContext';
+import BuyerHomeCard from './components/BuyerHomeCard';
 
+function App() {
   return (
-    <Routes>
-      
-      <Route path="/" element={<LandingPage/>} />
-      <Route path="/createStore" element={<CreateStore/>} />
-      <Route path="/login" element={<LoginPage/>} />
-      <Route path="/signup" element={<SignupPage/>} />
-      <Route path="/sellerOrders" element={<SellerTrack />} />
-      <Route path="/buyerOrders" element={<BuyerTrack/>} />
-      <Route path="/manage" element={<ManageStore />} />
-      <Route path="/add-product" element={<AddProduct />} />
-      <Route path="/buyer" element={<BuyerHome />} />
-      <Route path="/about" element={<AboutUs/>} />
-    </Routes>
+    <CartProvider>
+      <Routes>
+        <Route path="/" element={<LandingPage/>} />
+        <Route path="/createStore" element={<CreateStore/>} />
+        <Route path="/login" element={<LoginPage/>} />
+        <Route path="/signup" element={<SignupPage/>} />
+        <Route path="/sellerOrders" element={<SellerTrack />} />
+        <Route path="/buyerOrders" element={<BuyerTrack/>} />
+        <Route path="/manage" element={<ManageStore />} />
+        <Route path="/add-product" element={<AddProduct />} />
+        <Route path="/buyer" element={<BuyerHome />} />
+        <Route path="/about" element={<AboutUs/>} />
+        <Route path="/card" element={<Card />} />
+        <Route path="/buyerHomeCard" element={<BuyerHomeCard />} />
+        <Route path="/cart" element={<CartPage />} />
+      </Routes>
+    </CartProvider>
   );
 }
 
