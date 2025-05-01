@@ -22,18 +22,15 @@ describe("Navigation component", () => {
     render(<Navigation />);
     const button = screen.getByRole("button");
 
-    // Open mobile menu
     fireEvent.click(button);
     expect(screen.getByText("✕")).toBeInTheDocument();
 
     const mobileMenu = screen.getByTestId("mobile-menu");
     expect(mobileMenu).toBeInTheDocument();
-
     expect(within(mobileMenu).getByText("Home")).toBeInTheDocument();
     expect(within(mobileMenu).getByText("Orders")).toBeInTheDocument();
     expect(within(mobileMenu).getByText("About Us")).toBeInTheDocument();
 
-    // Close mobile menu
     fireEvent.click(button);
     expect(button).toHaveTextContent("☰");
   });

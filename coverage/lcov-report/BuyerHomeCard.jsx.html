@@ -30,9 +30,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">3.7% </span>
+                <span class="strong">4.34% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/27</span>
+                <span class='fraction'>1/23</span>
             </div>
         
             
@@ -160,12 +160,7 @@
 <a name='L95'></a><a href='#L95'>95</a>
 <a name='L96'></a><a href='#L96'>96</a>
 <a name='L97'></a><a href='#L97'>97</a>
-<a name='L98'></a><a href='#L98'>98</a>
-<a name='L99'></a><a href='#L99'>99</a>
-<a name='L100'></a><a href='#L100'>100</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L98'></a><a href='#L98'>98</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -175,7 +170,6 @@
 <span class="cline-any cline-yes">10x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -261,11 +255,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">&nbsp;
-&nbsp;
-&nbsp;
-import React from "react";
-import { BsFillBagFill } from "react-icons/bs";
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import React from "react";
+import { BsFillBagFill, BsCart } from "react-icons/bs";
 import "./BuyerHomeCard.css";
 import { useCart } from "./CartContext";
 import { useNavigate } from "react-router-dom";
@@ -274,19 +267,18 @@ const BuyerHomeCard = ({ img, title, star, reviews, prevPrice, newPrice, product
   const { dispatch, shoppingCart } = useCart();
   const navigate = <span class="cstat-no" title="statement not covered" >useNavigate();</span>
 &nbsp;
-  // Create star display
   const renderStars = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
     const starsDisplay = <span class="cstat-no" title="statement not covered" >[];</span>
     const rating = <span class="cstat-no" title="statement not covered" >parseInt(star) || 0;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    for (let i = <span class="cstat-no" title="statement not covered" >0;</span> i &lt; 5; i++) {</span>
 <span class="cstat-no" title="statement not covered" >      starsDisplay.push(</span>
-        &lt;span key={i} className={i &lt; rating ? "rating-star filled" : "rating-star"}&gt;
+        &lt;em key={i} className={i &lt; rating ? "rating-star filled" : "rating-star"}&gt;
           ★
-        &lt;/span&gt;
+        &lt;/em&gt;
       );
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return starsDisplay;</span>
   };
 &nbsp;
@@ -294,7 +286,7 @@ const BuyerHomeCard = ({ img, title, star, reviews, prevPrice, newPrice, product
 <span class="cstat-no" title="statement not covered" >    dispatch({</span>
       type: 'ADD',
       item: {
-        ProductID: product?.id || Date.now(), // Safe access with optional chaining
+        ProductID: product?.id || Date.now(),
         ProductName: title || "Product",
         ProductImg: img || "/placeholder.jpg",
         ProductPrice: newPrice || 0,
@@ -305,69 +297,71 @@ const BuyerHomeCard = ({ img, title, star, reviews, prevPrice, newPrice, product
   };
 &nbsp;
   const viewCart = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >()</span> =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    navigate('/cart'); </span>// Make sure you have a route for '/cart'
+<span class="cstat-no" title="statement not covered" >    navigate('/cart');</span>
   };
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  return (</span>
     &lt;article className="buyer-card"&gt;
-      &lt;div className="buyer-card-image-container"&gt;
-        &lt;img 
-          src={img || "/placeholder.jpg"} 
-          alt={title || "Product"} 
-          className="buyer-card-img" 
+      &lt;figure className="buyer-card-image-container"&gt;
+        &lt;img
+          src={img || "/placeholder.jpg"}
+          alt={title || "Product"}
+          className="buyer-card-img"
         /&gt;
-      &lt;/div&gt;
-      
-      &lt;div className="buyer-card-details"&gt;
-        &lt;h3 className="buyer-card-title"&gt;{title || "Product"}&lt;/h3&gt;
-        
-        &lt;div className="buyer-card-reviews"&gt;
-          &lt;div className="buyer-star-rating"&gt;
+      &lt;/figure&gt;
+&nbsp;
+      &lt;main className="buyer-card-details"&gt;
+        &lt;header&gt;
+          &lt;h3 className="buyer-card-title"&gt;{title || "Product"}&lt;/h3&gt;
+        &lt;/header&gt;
+&nbsp;
+        {/* 
+        &lt;section className="buyer-card-reviews"&gt;
+          &lt;aside className="buyer-star-rating"&gt;
             {renderStars()}
-          &lt;/div&gt;
-          &lt;span className="buyer-total-reviews"&gt;({reviews || 0})&lt;/span&gt;
-        &lt;/div&gt;
-        
-        &lt;div className="buyer-card-price"&gt;
-          &lt;div className="buyer-price"&gt;
-            {prevPrice &amp;&amp; &lt;del className="buyer-prev-price"&gt;{prevPrice}&lt;/del&gt;}
-            &lt;span className="buyer-new-price"&gt;{newPrice}&lt;/span&gt;
-          &lt;/div&gt;
-          
-          &lt;div className="buyer-card-actions"&gt;
-            &lt;button 
-              className="buyer-bag-button" 
+          &lt;/aside&gt;
+          &lt;strong className="buyer-total-reviews"&gt;({reviews || 0})&lt;/strong&gt;
+        &lt;/section&gt;
+        */}
+&nbsp;
+        &lt;section className="buyer-card-price"&gt;
+          &lt;strong className="buyer-new-price"&gt;{newPrice}&lt;/strong&gt;
+&nbsp;
+          &lt;footer className="buyer-card-actions"&gt;
+            &lt;button
+              className="buyer-bag-button"
               aria-label="Add to cart"
               onClick={addToCart}
             &gt;
               &lt;BsFillBagFill className="buyer-bag-icon" /&gt;
             &lt;/button&gt;
-            
-            &lt;button 
-              className="view-cart-button" 
+&nbsp;
+            &lt;button
+              className="view-cart-button"
               onClick={viewCart}
               disabled={shoppingCart.length === 0}
             &gt;
               &lt;BsCart className="cart-icon" /&gt;
               {shoppingCart.length &gt; 0 &amp;&amp; (
-                &lt;span className="cart-badge"&gt;{shoppingCart.length}&lt;/span&gt;
+                &lt;strong className="cart-badge"&gt;{shoppingCart.length}&lt;/strong&gt;
               )}
             &lt;/button&gt;
-          &lt;/div&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
+          &lt;/footer&gt;
+        &lt;/section&gt;
+      &lt;/main&gt;
     &lt;/article&gt;
   );
 };
 &nbsp;
-export default BuyerHomeCard;</pre></td></tr></table></pre>
+export default BuyerHomeCard;
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-01T00:05:48.673Z
+                at 2025-05-01T02:35:41.131Z
             </div>
         <script src="prettify.js"></script>
         <script>

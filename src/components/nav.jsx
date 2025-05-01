@@ -25,7 +25,7 @@ function Navigation() {
       
       {/* Mobile menu */}
       {isMenuOpen && (
-        <ul className="mobile-menu">
+        <ul className="mobile-menu" data-testid="mobile-menu">
           <li><a href="/buyer">Home</a></li>
         <li><a href="/BuyerOrders">Orders</a></li>
         <li><a href="/about">About Us</a></li>

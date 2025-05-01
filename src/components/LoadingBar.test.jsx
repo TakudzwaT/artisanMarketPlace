@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, waitFor } from '@testing-library/react';
 import LoadingBar from './LoadingBar';
 
 describe('LoadingBar component', () => {
@@ -14,8 +14,6 @@ describe('LoadingBar component', () => {
 
   test('initial percent is 0', () => {
     render(<LoadingBar />);
-    
-    // Pick the section element with the aria attributes
     const [wrapper] = screen.getAllByRole('progressbar');
     expect(wrapper).toHaveAttribute('aria-valuenow', '0');
   });
@@ -33,15 +31,17 @@ describe('LoadingBar component', () => {
     expect(percentNow).toBeLessThan(100);
   });
 
-  test('reaches 100% after full duration', () => {
+  test('reaches 100% after full duration', async () => {
     render(<LoadingBar duration={3000} />);
 
     act(() => {
       jest.advanceTimersByTime(3000);
     });
 
-    const [wrapper] = screen.getAllByRole('progressbar');
-    expect(wrapper).toHaveAttribute('aria-valuenow', '100');
-    expect(screen.getByText('100%')).toBeInTheDocument();
+    await waitFor(() => {
+      const [wrapper] = screen.getAllByRole('progressbar');
+      expect(wrapper).toHaveAttribute('aria-valuenow', '100');
+      expect(screen.getByText('100%')).toBeInTheDocument();
+    });
   });
 });

@@ -66,7 +66,7 @@ export default function CreateStore() {
       <Navi />
       <header><h1>Create your store</h1></header>
       <main>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} data-testid="create-store-form">
           <section>
             <h2>Store Details</h2>
             <label>

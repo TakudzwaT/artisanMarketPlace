@@ -24,10 +24,11 @@ describe('Input component', () => {
     expect(screen.getByText('Option 1')).toBeInTheDocument();
   });
 
-  it('applies the correct background color to the checkmark span', () => {
+  it('applies the correct background color to the checkmark element', () => {
     render(<Input {...props} />);
-    const span = screen.getByText('Option 1').previousSibling;
-    expect(span).toHaveStyle(`background-color: red`);
+    const label = screen.getByText('Option 1').closest('label');
+    const checkmark = label?.querySelector('em');
+    expect(checkmark).toHaveStyle(`background-color: red`);
   });
 
   it('calls handleChange when input is changed', () => {
