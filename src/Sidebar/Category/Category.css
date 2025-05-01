@@ -2,6 +2,7 @@
     font-size: 14px;
     font-weight: normal;
     margin-bottom: 14px;
+    color: black;
   }
   
   .sidebar-items {
@@ -66,6 +67,7 @@
     border-radius: 50%;
     background: white;
   }
+  
   
   .line {
     margin-top: 1.5rem;

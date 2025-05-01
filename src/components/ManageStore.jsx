@@ -107,7 +107,6 @@ export default function ManageStore() {
     p.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // If there's an error, show error message
   if (error) {
     return (
       <>
@@ -132,7 +131,6 @@ export default function ManageStore() {
     );
   }
   
-  // Show loading state while waiting for auth
   if (!storeId) {
     return (
       <>

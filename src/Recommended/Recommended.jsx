@@ -4,7 +4,7 @@ import "./Recommended.css";
 const Recommended = ({ handleClick }) => {
   return (
     <section aria-labelledby="recommended-heading" className="recommended-section">
-      <h2 id="recommended-heading" className="recommended-title">Recommended</h2>
+      {/*<h2 id="recommended-heading" className="recommended-title"></h2>
       <ul className="recommended-flex">
         <li>
           <Button onClickHandler={handleClick} value="" title="All Products" />
@@ -21,7 +21,7 @@ const Recommended = ({ handleClick }) => {
         <li>
           <Button onClickHandler={handleClick} value="WoodenWonders" title="WoodenWonders" />
         </li>
-      </ul>
+      </ul>*/}
     </section>
   );
 };

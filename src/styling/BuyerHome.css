@@ -1,70 +1,118 @@
-/* BuyerHome.css */
 .buyer-home-container {
+  width: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  background-color: #f8f8f8;
 }
 
 .buyer-home-content {
   display: flex;
-  flex: 1;
+  width: 100%;
+  position: relative;
+  padding-top: 60px; /* Adjusted to match nav height */
+}
+.sr-only{
+  color: #555;
 }
 
 .buyer-main-content {
-  flex: 1;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
+  width: 85%;
+  margin-left: 15%; /* This matches the sidebar width */
+  padding: 1rem;
 }
 
-.buyer-card-container {
+.search-container {
   display: flex;
-  flex-wrap: wrap;
-  margin-top: 20px;
-  justify-content: flex-start;
-}
-
-.buyer-loading {
-  display: flex;
-  justify-content: center;
   align-items: center;
-  height: 300px;
+  margin-bottom: 1.5rem;
   width: 100%;
-  font-size: 18px;
-  color: #666;
+  gap: 1rem;
 }
 
-.buyer-no-products {
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+  flex-grow: 1;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  color: #555;
+}
+
+.search-input {
   width: 100%;
-  padding: 40px;
-  text-align: center;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  color: #666;
+  padding: 10px 10px 10px 40px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
   font-size: 16px;
 }
 
+.reset-button {
+  padding: 10px 15px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.reset-button:hover {
+  background-color: #d32f2f;
+}
+
+.buyer-card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  padding: 0;
+  list-style: none;
+  margin-top: 1.5rem;
+}
+
+.buyer-loading,
+.buyer-no-products {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.product-item {
+  display: flex;
+}
+
 /* Responsive adjustments */
-@media screen and (max-width: 992px) {
-  .buyer-home-content {
-    flex-direction: column;
+@media (max-width: 992px) {
+  .sidebar {
+    width: 20%;
+  }
+  
+  .buyer-main-content {
+    width: 80%;
+    margin-left: 20%;
   }
   
   .buyer-card-container {
-    justify-content: center;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
 }
 
-@media screen and (max-width: 768px) {
+@media (max-width: 768px) {
+  .sidebar {
+    width: 25%;
+  }
+  
   .buyer-main-content {
-    padding: 10px;
+    width: 75%;
+    margin-left: 25%;
   }
-}
-
-@media screen and (max-width: 576px) {
+  
   .buyer-card-container {
-    justify-content: center;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   }
 }
