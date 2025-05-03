@@ -1,7 +1,7 @@
 // src/components/AddProduct.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { v4 as uuidv4 } from 'uuid';
@@ -55,14 +55,21 @@ export default function AddProduct() {
       await uploadBytes(storageRef, product.imageFile);
       const imageUrl = await getDownloadURL(storageRef);
 
-      await addDoc(collection(db, 'stores', storeId, 'products'), {
+      // Create the document first
+      const docRef = await addDoc(collection(db, 'stores', storeId, 'products'), {
         name: product.name.trim(),
         category: product.category.trim(),
         price: parseFloat(product.price),
         stock: parseInt(product.stock, 10),
         status: 'Active',
         imageUrl,
+        storeId: storeId, // Add storeId to the product document
         createdAt: new Date()
+      });
+
+      // Update the document with its own ID as productId
+      await updateDoc(docRef, {
+        productId: docRef.id
       });
 
       navigate('/manage');

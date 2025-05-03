@@ -19,7 +19,6 @@ export default function BuyerHome() {
   const [selectedColor, setSelectedColor] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch all products across stores
   useEffect(() => {
     const fetchProducts = async () => {
       try {

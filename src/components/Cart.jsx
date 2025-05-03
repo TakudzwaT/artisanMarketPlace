@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { useHistory } from 'react-router-dom';
 import { auth } from '../firebase';
 import { CartContext } from './CartContext';
-import './Cart.css'; // Make sure to create this CSS file
+import './Cart.css';
 
 export const Cart = ({ user }) => {
     const { shoppingCart, dispatch, totalPrice, totalQty } = useContext(CartContext);
@@ -41,74 +41,70 @@ export const Cart = ({ user }) => {
     return (
         <>
             <Navbar user={user} />
-            <div className="cart-page-container">
+            <main className="cart-page-container">
                 {shoppingCart.length !== 0 && <h1 className="cart-title">Your Shopping Cart</h1>}
                 
-                <div className='cart-container'>
+                <section className='cart-container'>
                     {shoppingCart.length === 0 ? (
-                        <div className="empty-cart">
-                            <div className="empty-cart-message">
+                        <article className="empty-cart">
+                            <p className="empty-cart-message">
                                 Your cart is empty
-                            </div>
-                            <div className="return-home">
+                            </p>
+                            <nav className="return-home">
                                 <Link to="/" className="return-home-link">
                                     Continue Shopping
                                 </Link>
-                            </div>
-                        </div>
+                            </nav>
+                        </article>
                     ) : (
                         <>
-                            <div className="cart-items">
+                            <ul className="cart-items">
                                 {shoppingCart.map(cart => (
-                                    <div className='cart-card' key={cart.ProductID}>
-                                        <div className='cart-img'>
+                                    <li className='cart-card' key={cart.ProductID}>
+                                        <figure className='cart-img'>
                                             <img src={cart.ProductImg} alt={cart.ProductName} />
-                                        </div>
+                                        </figure>
 
-                                        <div className='cart-details'>
-                                            <div className='cart-name'>{cart.ProductName}</div>
-                                            <div className='cart-price-original'>Rs {cart.ProductPrice}.00</div>
-                                        </div>
+                                        <article className='cart-details'>
+                                            <h3 className='cart-name'>{cart.ProductName}</h3>
+                                            <p className='cart-price-original'>Rs {cart.ProductPrice}.00</p>
+                                        </article>
 
-                                        <div className='cart-quantity-controls'>
+                                        <section className='cart-quantity-controls'>
                                             <button className='quantity-btn dec' onClick={() => handleDecrement(cart)}>
                                                 <Icon icon={ic_remove} size={20} />
                                             </button>
-                                            <div className='quantity'>{cart.qty}</div>
+                                            <p className='quantity'>{cart.qty}</p>
                                             <button className='quantity-btn inc' onClick={() => handleIncrement(cart)}>
                                                 <Icon icon={ic_add} size={20} />
                                             </button>
-                                        </div>
+                                        </section>
 
-                                        <div className='cart-price'>
+                                        <p className='cart-price'>
                                             R {cart.TotalProductPrice}.00
-                                        </div>
+                                        </p>
 
                                         <button className='delete-btn' onClick={() => handleDelete(cart)}>
                                             <Icon icon={iosTrashOutline} size={20} />
                                         </button>
-                                    </div>
+                                    </li>
                                 ))}
-                            </div>
+                            </ul>
 
-                            <div className='cart-summary'>
+                            <aside className='cart-summary'>
                                 <h3 className='cart-summary-heading'>Order Summary</h3>
-                                <div className='cart-summary-item'>
-                                    <span>Total Items:</span>
-                                    <span>{totalQty}</span>
-                                </div>
-                                <div className='cart-summary-item'>
-                                    <span>Subtotal:</span>
-                                    <span>R {totalPrice}.00</span>
-                                </div>
-                                <div className='cart-summary-item'>
-                                    <span>Estimated Shipping:</span>
-                                    <span>R 0.00</span>
-                                </div>
-                                <div className='cart-summary-total'>
-                                    <span>Total:</span>
-                                    <span>R {totalPrice}.00</span>
-                                </div>
+                                <p className='cart-summary-item'>
+                                    Total Items: {totalQty}
+                                </p>
+                                <p className='cart-summary-item'>
+                                    Subtotal: R {totalPrice}.00
+                                </p>
+                                <p className='cart-summary-item'>
+                                    Estimated Shipping: R 0.00
+                                </p>
+                                <p className='cart-summary-total'>
+                                    Total: R {totalPrice}.00
+                                </p>
                                 <Link to='cashout' className='cashout-link'>
                                     <button className='checkout-btn'>
                                         Proceed to Checkout
@@ -117,11 +113,11 @@ export const Cart = ({ user }) => {
                                 <Link to="/" className="continue-shopping-link">
                                     Continue Shopping
                                 </Link>
-                            </div>
+                            </aside>
                         </>
                     )}
-                </div>
-            </div>
+                </section>
+            </main>
         </>
     );
 };
