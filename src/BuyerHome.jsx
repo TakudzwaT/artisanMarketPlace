@@ -1,21 +1,25 @@
-import { useEffect, useState } from "react";
+// src/pages/BuyerHome.jsx
+import React, { useEffect, useState } from "react";
 import { collectionGroup, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 import BuyerHomeCard from "./components/BuyerHomeCard";
 import Recommended from "./Recommended/Recommended";
 import Sidebar from "./Sidebar/Sidebar";
 import Nav from "./components/nav";
+import LoadCredits from "./components/LoadCredits";
 import { Search } from "lucide-react";
 import "./styling/BuyerHome.css";
 
-const BuyerHome = () => {
+export default function BuyerHome() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedPrice, setSelectedPrice] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Fetch all products across stores
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -35,57 +39,27 @@ const BuyerHome = () => {
     fetchProducts();
   }, []);
 
-  const handleCategoryChange = (e) => {
-    setSelectedCategory(e.target.value);
-  };
-
-  const handleRecommendedClick = (value) => {
-    setSelectedCategory(value);
-  };
-
-  const handlePriceChange = (e) => {
-    setSelectedPrice(e.target.value);
-  };
-
-  const handleColorChange = (e) => {
-    setSelectedColor(e.target.value);
-  };
-
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
-
+  // Filter logic
   const filteredProducts = products.filter((product) => {
-    // Search filter
     const matchSearch = searchQuery
       ? product.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.description?.toLowerCase().includes(searchQuery.toLowerCase())
       : true;
 
-    // Category filter
     const matchCategory = selectedCategory
       ? product.category?.toLowerCase() === selectedCategory.toLowerCase()
       : true;
 
-    // Price filter
     let matchPrice = true;
     if (selectedPrice) {
       const price = Number(product.newPrice || product.price);
-      
-      if (selectedPrice === "50") {
-        matchPrice = price <= 50;
-      } else if (selectedPrice === "100") {
-        matchPrice = price > 50 && price <= 100;
-      } else if (selectedPrice === "150") {
-        matchPrice = price > 100 && price <= 150;
-      } else if (selectedPrice === "200") {
-        matchPrice = price > 150 && price <= 200;
-      } else if (selectedPrice === "250") {
-        matchPrice = price > 200 && price <= 250;
-      }
+      if (selectedPrice === "50") matchPrice = price <= 50;
+      if (selectedPrice === "100") matchPrice = price > 50 && price <= 100;
+      if (selectedPrice === "150") matchPrice = price > 100 && price <= 150;
+      if (selectedPrice === "200") matchPrice = price > 150 && price <= 200;
+      if (selectedPrice === "250") matchPrice = price > 200 && price <= 250;
     }
 
-    // Color filter
     const matchColor = selectedColor
       ? product.color?.toLowerCase() === selectedColor.toLowerCase()
       : true;
@@ -93,6 +67,11 @@ const BuyerHome = () => {
     return matchSearch && matchCategory && matchPrice && matchColor;
   });
 
+  const handleCategoryChange = (e) => setSelectedCategory(e.target.value);
+  const handlePriceChange = (e) => setSelectedPrice(e.target.value);
+  const handleColorChange = (e) => setSelectedColor(e.target.value);
+  const handleSearchChange = (e) => setSearchQuery(e.target.value);
+  const handleRecommendedClick = (value) => setSelectedCategory(value);
   const resetFilters = () => {
     setSelectedCategory("");
     setSelectedPrice("");
@@ -102,10 +81,10 @@ const BuyerHome = () => {
 
   return (
     <main className="buyer-home-container">
-      
       <header>
-      <Nav />
+        <Nav />
       </header>
+
       <section className="buyer-home-content">
         <Sidebar
           handleCategoryChange={handleCategoryChange}
@@ -115,10 +94,19 @@ const BuyerHome = () => {
           selectedPrice={selectedPrice}
           selectedColor={selectedColor}
         />
+
         <section className="buyer-main-content">
-          <form className="search-container" role="search" onSubmit={(e) => e.preventDefault()}>
+          {/* Load credits widget */}
+          <LoadCredits />
+
+          {/* Search & reset */}
+          <form
+            className="search-container"
+            role="search"
+            onSubmit={(e) => e.preventDefault()}
+          >
             <label className="search-wrapper">
-              {/* <Search size={20} className="search-icon" aria-hidden="true" /> */}
+              <Search size={20} className="search-icon" aria-hidden="true" />
               <input
                 type="search"
                 placeholder="Search products..."
@@ -128,7 +116,7 @@ const BuyerHome = () => {
                 aria-label="Search products"
               />
             </label>
-            <button 
+            <button
               type="button"
               onClick={resetFilters}
               className="reset-button"
@@ -137,17 +125,23 @@ const BuyerHome = () => {
               Reset Filters
             </button>
           </form>
-          
+
+          {/* Recommended categories */}
           <section aria-labelledby="recommended-heading">
-            <h2 id="recommended-heading" className="sr-only">Recommended Categories</h2>
+            <h2 id="recommended-heading" className="sr-only">
+              Recommended Categories
+            </h2>
             <Recommended handleClick={handleRecommendedClick} />
           </section>
-          
+
+          {/* Product grid */}
           <ul className="buyer-card-container" aria-label="Product List">
             {loading ? (
               <li className="buyer-loading">Loading products...</li>
             ) : filteredProducts.length === 0 ? (
-              <li className="buyer-no-products">No products found matching your criteria</li>
+              <li className="buyer-no-products">
+                No products found matching your criteria
+              </li>
             ) : (
               filteredProducts.map((product) => (
                 <li key={product.id} className="product-item">
@@ -168,6 +162,4 @@ const BuyerHome = () => {
       </section>
     </main>
   );
-};
-
-export default BuyerHome;
+}

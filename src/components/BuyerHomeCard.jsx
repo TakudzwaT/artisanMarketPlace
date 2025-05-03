@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useCart } from './CartContext';
+import { Link, useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
+import { useCart } from './CartContext';
+import { BsFillBagFill, BsCart } from "react-icons/bs";
 import './BuyerHomeCard.css';
 
-const BuyerHomeCard = ({ product }) => {
-  const { addToCart } = useCart();
+const BuyerHomeCard = ({ product = {} }) => {
+  const { addToCart, shoppingCart } = useCart();
   const auth = getAuth();
   const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = useState(false);
@@ -16,47 +16,60 @@ const BuyerHomeCard = ({ product }) => {
       navigate('/login');
       return;
     }
-    
+
     addToCart(product);
     setShowSuccess(true);
-    
-    // Hide the success message after 2 seconds
-    setTimeout(() => {
-      setShowSuccess(false);
-    }, 2000);
+    setTimeout(() => setShowSuccess(false), 2000);
+  };
+
+  const viewCart = () => {
+    navigate('/cart');
   };
 
   return (
-    <article className="product-card">
-      <Link to={`/product/${product.id}`} className="product-link">
-        <figure className="product-image">
-          <img src={product.imageUrl || "/placeholder.jpg"} alt={product.name} />
-        </figure>
-        <section className="product-info">
-          <h3 className="product-title">{product.name || "Product"}</h3>
-          {product.star && (
-            <figure className="product-rating">
-              <figcaption className="stars">{"★".repeat(product.star)}</figcaption>
-              <figcaption className="reviews">({product.reviews || 0} reviews)</figcaption>
-            </figure>
-          )}
-          <section className="product-price">
+    <article className="buyer-card">
+      <Link to={`/product/${product.id}`} className="buyer-card-image-container">
+        <img
+          src={product.imageUrl || "/placeholder.jpg"}
+          alt={product.name || "Product"}
+          className="buyer-card-img"
+        />
+      </Link>
+
+      <section className="buyer-card-details">
+        <h3 className="buyer-card-title">{product.name || "Product"}</h3>
+
+        <section className="buyer-card-price">
+          <section className="buyer-price">
             {product.prevPrice && (
-              <del className="prev-price">R{product.prevPrice}</del>
+              <del className="buyer-prev-price">R{product.prevPrice}</del>
             )}
-            <strong className="current-price">R{product.price?.toFixed(2)}</strong>
+            <strong className="buyer-new-price">R{product.price?.toFixed(2)}</strong>
+          </section>
+
+          <section className="buyer-card-actions">
+            <button
+              className="buyer-bag-button"
+              aria-label="Add to cart"
+              onClick={handleAddToCart}
+            >
+              <BsFillBagFill className="buyer-bag-icon" />
+            </button>
+
+            <button
+              className="view-cart-button"
+              onClick={viewCart}
+              disabled={shoppingCart.length === 0}
+            >
+              <BsCart className="cart-icon" />
+              {shoppingCart.length > 0 && (
+                <em className="cart-badge">{shoppingCart.length}</em>
+              )}
+            </button>
           </section>
         </section>
-      </Link>
-      <button
-        className="add-to-cart-btn"
-        onClick={handleAddToCart}
-        aria-label={`Add ${product.name} to cart`}
-      >
-        Add to Cart
-      </button>
-      
-      {/* Success message overlay */}
+      </section>
+
       {showSuccess && (
         <aside className="success-message fade-in">
           <p>Added to cart successfully!</p>

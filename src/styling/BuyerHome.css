@@ -9,7 +9,7 @@
   display: flex;
   width: 100%;
   position: relative;
-  padding-top: 60px; /* Adjusted to match nav height */
+  padding-top: 40px; /* reduced space between nav and content */
 }
 .sr-only{
   color: #555;
@@ -24,9 +24,9 @@
 .search-container {
   display: flex;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem; /* tightened spacing */
   width: 100%;
-  gap: 1rem;
+  gap: 0.5rem; /* reduced gap */
 }
 
 .search-wrapper {

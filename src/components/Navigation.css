@@ -6,15 +6,9 @@
   justify-content: space-between;
   background: linear-gradient(to right, #b45309, #7c2d12);
   color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  position: fixed; /* Changed from relative to fixed */
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 10; /* Higher z-index to stay on top */
-  height: 60px; /* Set explicit height */
   padding: 0 1rem;
-  box-sizing: border-box;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 .navigation h1 {
@@ -65,12 +59,6 @@
   margin: 0;
   padding: 0.5rem 0;
   order: 3;
-  background: linear-gradient(to right, #b45309, #7c2d12); /* Match nav background */
-  position: fixed; /* Fixed position below nav */
-  top: 60px; /* Should match nav height */
-  left: 0;
-  width: 100%;
-  z-index: 9; /* Below nav but above other content */
 }
 
 .mobile-menu li {

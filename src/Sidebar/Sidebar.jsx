@@ -25,10 +25,10 @@ const Sidebar = ({
         handleChange={handlePriceChange} 
         selectedValue={selectedPrice}
       />
-      <Colors 
+      {/*<Colors 
         handleChange={handleColorChange} 
         selectedValue={selectedColor}
-      />
+      />*/}
     </aside>
   );
 };
