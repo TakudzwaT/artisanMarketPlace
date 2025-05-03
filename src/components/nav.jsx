@@ -12,6 +12,7 @@ function Navigation() {
       <ul className="desktop-menu">
       <li><a href="/buyer">Home</a></li>
         <li><a href="/BuyerOrders">Orders</a></li>
+        <li><a href="/cart">Cart</a></li>
         <li><a href="/about">About Us</a></li>
       </ul>
       
@@ -28,6 +29,7 @@ function Navigation() {
         <ul className="mobile-menu" data-testid="mobile-menu">
           <li><a href="/buyer">Home</a></li>
         <li><a href="/BuyerOrders">Orders</a></li>
+        <li><a href="/cart">Cart</a></li>
         <li><a href="/about">About Us</a></li>
           
         </ul>

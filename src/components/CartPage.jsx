@@ -1,86 +1,118 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { getAuth } from 'firebase/auth';
 import { useCart } from './CartContext';
-import { Link } from 'react-router-dom';
-import './CartPage.css'; // Create this CSS file for styling
+import Navbar from './nav';
+import './CartPage.css';
 
 const CartPage = () => {
-  const { shoppingCart, dispatch, totalPrice, totalQty } = useCart();
+  const {
+    shoppingCart,
+    totalPrice,
+    totalQty,
+    loading,
+    incrementItem,
+    decrementItem,
+    removeItem
+  } = useCart();
+  
+  const navigate = useNavigate();
+  const auth = getAuth();
 
-  const handleRemove = (productId) => {
-    dispatch({ type: 'DELETE', id: productId });
-  };
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      if (!user) {
+        navigate('/login');
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
 
-  const handleIncrement = (item) => {
-    dispatch({ type: 'INC', id: item.ProductID, cart: item });
-  };
-
-  const handleDecrement = (item) => {
-    if (item.qty > 1) {
-      dispatch({ type: 'DEC', id: item.ProductID, cart: item });
-    } else {
-      handleRemove(item.ProductID);
-    }
-  };
+  if (loading) {
+    return (
+      <main className="cart-container">
+        <Navbar />
+        <section className="loading-container animate-pulse">
+          <p>Loading your cart...</p>
+        </section>
+      </main>
+    );
+  }
 
   return (
-    <div className="cart-container">
-      <h1 className="cart-title">Your Shopping Cart</h1>
+    <main className="cart-container fade-in">
+      <Navbar />
+      <header>
+        <h1 className="cart-title">Your Shopping Cart</h1>
+      </header>
       
       {shoppingCart.length === 0 ? (
-        <div className="empty-cart">
+        <section className="empty-cart slide-up">
           <p>Your cart is empty</p>
           <Link to="/buyer" className="continue-shopping">
             Continue Shopping
           </Link>
-        </div>
+        </section>
       ) : (
         <>
-          <div className="cart-items">
+          <section className="cart-items">
             {shoppingCart.map((item) => (
-              <div key={item.ProductID} className="cart-item">
-                <div className="cart-item-image">
-                  <img src={item.ProductImg} alt={item.ProductName} />
-                </div>
-                <div className="cart-item-details">
-                  <h3>{item.ProductName}</h3>
-                  <p className="price">Price: Rs {item.ProductPrice}.00</p>
-                  <div className="quantity-controls">
-                    <button onClick={() => handleDecrement(item)}>-</button>
-                    <span>{item.qty}</span>
-                    <button onClick={() => handleIncrement(item)}>+</button>
-                  </div>
-                  <p className="total">Total: Rs {item.TotalProductPrice}.00</p>
-                </div>
-                <button 
+              <article key={item.id} className="cart-item slide-in">
+                <figure className="cart-item-image">
+                  <img src={item.imageUrl} alt={item.name} />
+                </figure>
+                <section className="cart-item-details">
+                  <h3>{item.name}</h3>
+                  <p className="price">Price: R {item.price.toFixed(2)}</p>
+                  <section className="quantity-controls">
+                    <button
+                      onClick={() => decrementItem(item)}
+                      aria-label="Decrease quantity"
+                    >
+                      -
+                    </button>
+                    <output>{item.qty}</output>
+                    <button
+                      onClick={() => incrementItem(item)}
+                      aria-label="Increase quantity"
+                    >
+                      +
+                    </button>
+                  </section>
+                  <p className="total">Total: R {item.totalProductPrice.toFixed(2)}</p>
+                </section>
+                <button
                   className="remove-btn"
-                  onClick={() => handleRemove(item.ProductID)}
+                  onClick={() => removeItem(item)}
+                  aria-label="Remove item"
                 >
                   Remove
                 </button>
-              </div>
+              </article>
             ))}
-          </div>
+          </section>
           
-          <div className="cart-summary">
+          <aside className="cart-summary slide-up">
             <h3>Order Summary</h3>
-            <div className="summary-row">
-              <span>Total Items:</span>
-              <span>{totalQty}</span>
-            </div>
-            <div className="summary-row total">
-              <span>Total Price:</span>
-              <span>Rs {totalPrice}.00</span>
-            </div>
+            <section className="summary-row">
+              <p>Total Items:</p>
+              <p>{totalQty}</p>
+            </section>
+            <section className="summary-row total">
+              <p>Total Price:</p>
+              <p>R {totalPrice.toFixed(2)}</p>
+            </section>
             <Link to="/checkout" className="checkout-btn">
               Proceed to Checkout
             </Link>
             <Link to="/buyer" className="continue-shopping">
               Continue Shopping
             </Link>
-          </div>
+          </aside>
         </>
       )}
-    </div>
+    </main>
   );
 };
 

@@ -1,7 +1,7 @@
 /* ----- src/components/AddProduct.js ----- */
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, doc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { v4 as uuidv4 } from 'uuid';
@@ -11,7 +11,13 @@ import "./ManageandCreate.css";
 export default function AddProduct() {
   const navigate = useNavigate();
   const storeId = localStorage.getItem('storeId');
-  const [product, setProduct] = useState({ imageFile: null, name: '', category: '', price: '', stock: '' });
+  const [product, setProduct] = useState({
+    imageFile: null,
+    name: '',
+    category: '',
+    price: '',
+    stock: ''
+  });
   const [isUploading, setIsUploading] = useState(false);
 
   const handleChange = e => {
@@ -34,10 +40,15 @@ export default function AddProduct() {
       await uploadBytes(storageRef, product.imageFile);
       const imageUrl = await getDownloadURL(storageRef);
 
-      await addDoc(collection(db, 'stores', storeId, 'products'), {
+      const productsRef = collection(db, 'stores', storeId, 'products');
+      const newProductRef = doc(productsRef); // Create a doc reference with an ID
+
+      await setDoc(newProductRef, {
+        productId: newProductRef.id, // Store the generated document ID
+        storeId,
         name: product.name,
         category: product.category,
-        price: product.price,
+        price: parseFloat(product.price),
         stock: parseInt(product.stock, 10),
         status: 'Active',
         imageUrl
