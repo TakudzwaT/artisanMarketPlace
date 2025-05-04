@@ -1,0 +1,40 @@
+.payment-success-container {
+    background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+    min-height: calc(100vh - 70px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .success-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    max-width: 360px;
+    width: 100%;
+    padding: 2rem;
+    text-align: center;
+  }
+  .success-card h2 {
+    font-size: 1.75rem;
+    color: #2f855a;
+    margin-bottom: 0.75rem;
+  }
+  .success-card .message {
+    font-size: 1rem;
+    color: #486581;
+    margin-bottom: 1.5rem;
+  }
+  .success-card .continue-link {
+    padding: 0.75rem 1.5rem;
+    background: #486581;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.3s, transform 0.2s;
+  }
+  .success-card .continue-link:hover {
+    background: #334e68;
+    transform: translateY(-1px);
+  }

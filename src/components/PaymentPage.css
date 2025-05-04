@@ -1,0 +1,93 @@
+.payment-page-container {
+    background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+    min-height: calc(100vh - 70px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .payment-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    max-width: 380px;
+    width: 100%;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .payment-card h2 {
+    font-size: 1.75rem;
+    color: #334e68;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  .payment-card .info {
+    font-size: 1rem;
+    color: #486581;
+    margin: 0.5rem 0;
+    text-align: center;
+  }
+  .payment-card .load-credits {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+  }
+  .payment-card input[type="number"] {
+    padding: 0.75rem;
+    border: 1px solid #bcccdc;
+    border-radius: 6px;
+    width: 100%;
+    font-size: 1rem;
+  }
+  .payment-card button {
+    padding: 0.75rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.3s, transform 0.2s;
+  }
+  .payment-card .load-credits button {
+    background: #486581;
+    color: #fff;
+  }
+  .payment-card .load-credits button:hover {
+    background: #334e68;
+    transform: translateY(-1px);
+  }
+  .payment-card .pay-btn {
+    background: #2f855a;
+    color: #fff;
+    margin-top: 1rem;
+  }
+  .payment-card .pay-btn:hover {
+    background: #276749;
+  }
+  .payment-card .pay-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .payment-card .error-msg {
+    color: #e53e3e;
+    margin: 0.5rem 0;
+    text-align: center;
+  }
+  .payment-card .success-msg {
+    color: #2f855a;
+    margin: 0.5rem 0;
+    text-align: center;
+  }
+  .payment-card .back-link {
+    margin-top: 1.5rem;
+    text-align: center;
+    color: #334e68;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s;
+  }
+  .payment-card .back-link:hover {
+    color: #1d2733;
+  }

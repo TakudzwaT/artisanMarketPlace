@@ -5,29 +5,19 @@ import { useCart } from './CartContext';
 import Navbar from './nav';
 import './CartPage.css';
 
-const CartPage = () => {
-  const {
-    shoppingCart,
-    totalPrice,
-    totalQty,
-    loading,
-    incrementItem,
-    decrementItem,
-    removeItem
-  } = useCart();
-  
+export default function CartPage() {
+  const { shoppingCart, totalPrice, totalQty, loading, incrementItem, decrementItem, removeItem } = useCart();
   const navigate = useNavigate();
   const auth = getAuth();
 
-  // Redirect to login if not authenticated
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
-      if (!user) {
-        navigate('/login');
-      }
+      if (!user) navigate('/login');
     });
     return () => unsubscribe();
-  }, [navigate]);
+  }, [auth, navigate]);
+
+  const handleProceed = () => navigate('/payment', { state: { totalAmount: totalPrice } });
 
   if (loading) {
     return (
@@ -46,7 +36,7 @@ const CartPage = () => {
       <header>
         <h1 className="cart-title">Your Shopping Cart</h1>
       </header>
-      
+
       {shoppingCart.length === 0 ? (
         <section className="empty-cart slide-up">
           <p>Your cart is empty</p>
@@ -57,7 +47,7 @@ const CartPage = () => {
       ) : (
         <>
           <section className="cart-items">
-            {shoppingCart.map((item) => (
+            {shoppingCart.map(item => (
               <article key={item.id} className="cart-item slide-in">
                 <figure className="cart-item-image">
                   <img src={item.imageUrl} alt={item.name} />
@@ -66,33 +56,19 @@ const CartPage = () => {
                   <h3>{item.name}</h3>
                   <p className="price">Price: R {item.price.toFixed(2)}</p>
                   <section className="quantity-controls">
-                    <button
-                      onClick={() => decrementItem(item)}
-                      aria-label="Decrease quantity"
-                    >
-                      -
-                    </button>
-                    <output>{item.qty}</output>
-                    <button
-                      onClick={() => incrementItem(item)}
-                      aria-label="Increase quantity"
-                    >
-                      +
-                    </button>
+                    <button type="button" onClick={() => decrementItem(item)} aria-label="Decrease quantity">-</button>
+                    <span className="quantity">{item.qty}</span>
+                    <button type="button" onClick={() => incrementItem(item)} aria-label="Increase quantity">+</button>
                   </section>
                   <p className="total">Total: R {item.totalProductPrice.toFixed(2)}</p>
                 </section>
-                <button
-                  className="remove-btn"
-                  onClick={() => removeItem(item)}
-                  aria-label="Remove item"
-                >
+                <button type="button" className="remove-btn" onClick={() => removeItem(item)} aria-label="Remove item">
                   Remove
                 </button>
               </article>
             ))}
           </section>
-          
+
           <aside className="cart-summary slide-up">
             <h3>Order Summary</h3>
             <section className="summary-row">
@@ -103,9 +79,9 @@ const CartPage = () => {
               <p>Total Price:</p>
               <p>R {totalPrice.toFixed(2)}</p>
             </section>
-            <Link to="/checkout" className="checkout-btn">
+            <button type="button" className="checkout-btn" onClick={handleProceed}>
               Proceed to Checkout
-            </Link>
+            </button>
             <Link to="/buyer" className="continue-shopping">
               Continue Shopping
             </Link>
@@ -114,6 +90,4 @@ const CartPage = () => {
       )}
     </main>
   );
-};
-
-export default CartPage;
+}
