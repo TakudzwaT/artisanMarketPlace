@@ -5,17 +5,7 @@ import "./Navigation.css";
 
 function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const navigate = useNavigate();
-  const auth = getAuth();
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      navigate("/");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
+  
 
   return (
     <nav className="navigation">

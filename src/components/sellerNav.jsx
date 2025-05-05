@@ -1,21 +1,13 @@
 import { useState } from "react";
+import React from 'react';
 import { useNavigate } from "react-router-dom";
 import { getAuth, signOut } from "firebase/auth";
 import "./Navigation.css";
 
 function Navi() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const navigate = useNavigate();
-  const auth = getAuth();
+  
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      navigate("/");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
 
   return (
     <nav className="navigation">
@@ -42,7 +34,8 @@ function Navi() {
       {isMenuOpen && (
         <ul className="mobile-menu">
           <li><a href="/">Logout</a></li>
-          <li><a href="/manage">Manage Store</a></li>
+          <li><a href="/manage" data-testid="mobile-manage-link">Manage Store</a>
+          </li>
           <li><a href="/sellerOrders">Orders</a></li>
           <li><a href="/seller/dashboard">Dashboard</a></li>
           <li><a href="/about">About Us</a></li>

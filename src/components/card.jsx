@@ -1,5 +1,5 @@
 import "./TrackCard.css"
-
+import React from "react"
 function Card(prop) {
     // Function to determine the status color
     const getStatusColor = () => {
