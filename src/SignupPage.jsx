@@ -38,7 +38,13 @@ export default function SignupPage() {
         });
       }
 
-      localStorage.setItem('storeId', user.uid);
+      // Store appropriate ID based on role
+      if (role === 'Seller') {
+        localStorage.setItem('storeId', user.uid);
+      } else {
+        localStorage.setItem('userId', user.uid);
+      }
+      
       navigate(role === 'Seller' ? '/createStore' : '/buyer');
     } catch (error) {
       console.error('Signup Error:', error);

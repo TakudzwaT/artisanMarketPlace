@@ -16,7 +16,9 @@ import { CartProvider } from './components/CartContext';
 import BuyerHomeCard from './components/BuyerHomeCard';
 import PaymentPage from './components/PaymentPage';
 import PaymentSuccess from './components/PaymentSuccess';
-
+import AdminDashboard from './AdminDashboard';
+import AdminLoginPage from './AdminLoginPage';
+import SellerDashboard from './sellerDashboard';
 function App() {
   return (
     <CartProvider>
@@ -36,6 +38,9 @@ function App() {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/seller/dashboard" element={<SellerDashboard />} />
       </Routes>
     </CartProvider>
   );

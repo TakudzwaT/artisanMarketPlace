@@ -52,13 +52,32 @@ export default function PaymentPage() {
       setErrorMsg('Insufficient credits to complete the purchase.');
       return;
     }
+  
     setLoading(true);
+    setErrorMsg('');
+    setSuccessMsg('');
+  
     try {
-      // Deduct credits
+      // 1. Check all product stock before continuing
+      for (const item of shoppingCart) {
+        const productRef = doc(db, 'stores', item.storeId, 'products', item.productId);
+        const productSnap = await getDoc(productRef);
+  
+        if (!productSnap.exists()) {
+          throw new Error(`Product ${item.name} no longer exists.`);
+        }
+  
+        const stock = productSnap.data().stock;
+        if (item.qty > stock) {
+          throw new Error(`Not enough stock for ${item.name}. Available: ${stock}, In cart: ${item.qty}`);
+        }
+      }
+  
+      // 2. Deduct user credits
       const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, { credits: credits - totalAmount });
-
-      // Create order document
+  
+      // 3. Create order document
       const orderRef = doc(collection(db, 'orders'));
       await setDoc(orderRef, {
         id: orderRef.id,
@@ -74,9 +93,13 @@ export default function PaymentPage() {
         total: totalAmount,
         createdAt: serverTimestamp()
       });
-
-      // Reflect in each store's orders
+  
+      // 4. Reflect in each store's orders + update product stock
       for (const item of shoppingCart) {
+        const productRef = doc(db, 'stores', item.storeId, 'products', item.productId);
+        const productSnap = await getDoc(productRef);
+        const currentStock = productSnap.data().stock;
+  
         const storeOrderRef = doc(collection(db, 'stores', item.storeId, 'orders'));
         await setDoc(storeOrderRef, {
           orderId: orderRef.id,
@@ -84,19 +107,23 @@ export default function PaymentPage() {
           qty: item.qty,
           purchasedAt: serverTimestamp()
         });
+  
+        // Update stock
+        await updateDoc(productRef, {
+          stock: currentStock - item.qty
+        });
       }
-
-      // Clear cart
+  
       await clearCart();
-
       navigate('/payment-success');
     } catch (err) {
       console.error(err);
-      setErrorMsg('Payment failed. Please try again.');
+      setErrorMsg(err.message || 'Payment failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="payment-page-container">

@@ -10,7 +10,6 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
-
   const handleLogin = async (role) => {
     try {
       setIsLoading(true);
@@ -36,7 +35,13 @@ export default function LoginPage() {
         return;
       }
 
-      localStorage.setItem('storeId', user.uid);
+      // Store appropriate ID based on role
+      if (role === 'Seller') {
+        localStorage.setItem('storeId', user.uid);
+      } else {
+        localStorage.setItem('userId', user.uid);
+      }
+      
       navigate(role === 'Seller' ? '/manage' : '/buyer');
     } catch (error) {
       console.error('Login Error:', error);
@@ -89,6 +94,17 @@ export default function LoginPage() {
             />
             Continue as Seller
           </button>
+          <button
+  onClick={() => navigate('/admin/login')}
+  style={styles.adminButton}
+>
+  <img 
+    src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" 
+    alt="Admin Icon" 
+    style={styles.icon}
+  />
+  Continue as Admin
+</button>
         </div>
       </div>
     </main>
@@ -176,6 +192,22 @@ const styles = {
     minHeight: '100vh',
     backgroundColor: '#f5e9dd',
   },
+  adminButton: {
+    backgroundColor: '#6D4C41',
+    color: 'white',
+    padding: '16px',
+    borderRadius: '12px',
+    border: 'none',
+    fontSize: '1rem',
+    fontWeight: '600',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '10px',
+    transition: 'transform 0.2s, background-color 0.2s',
+  },
+  
   loadingText: {
     marginTop: '20px',
     color: '#6D4C41',

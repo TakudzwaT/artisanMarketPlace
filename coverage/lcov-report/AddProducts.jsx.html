@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">25% </span>
+                <span class="strong">24.48% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>12/48</span>
+                <span class='fraction'>12/49</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">29.26% </span>
+                <span class="strong">28.57% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>12/41</span>
+                <span class='fraction'>12/42</span>
             </div>
         
             
@@ -404,7 +404,13 @@
 <a name='L339'></a><a href='#L339'>339</a>
 <a name='L340'></a><a href='#L340'>340</a>
 <a name='L341'></a><a href='#L341'>341</a>
-<a name='L342'></a><a href='#L342'>342</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L342'></a><a href='#L342'>342</a>
+<a name='L343'></a><a href='#L343'>343</a>
+<a name='L344'></a><a href='#L344'>344</a>
+<a name='L345'></a><a href='#L345'>345</a>
+<a name='L346'></a><a href='#L346'>346</a>
+<a name='L347'></a><a href='#L347'>347</a>
+<a name='L348'></a><a href='#L348'>348</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -461,6 +467,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -468,6 +475,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -744,11 +757,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// src/components/AddProduct.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { v4 as uuidv4 } from 'uuid';
@@ -802,14 +814,21 @@ export default function AddProduct() {
 <span class="cstat-no" title="statement not covered" >      await uploadBytes(storageRef, product.imageFile);</span>
       const imageUrl = <span class="cstat-no" title="statement not covered" >await getDownloadURL(storageRef);</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      await addDoc(collection(db, 'stores', storeId, 'products'), {</span>
+      // Create the document first
+      const docRef = <span class="cstat-no" title="statement not covered" >await addDoc(collection(db, 'stores', storeId, 'products'), {</span>
         name: product.name.trim(),
         category: product.category.trim(),
         price: parseFloat(product.price),
         stock: parseInt(product.stock, 10),
         status: 'Active',
         imageUrl,
+        storeId: storeId, // Add storeId to the product document
         createdAt: new Date()
+      });
+&nbsp;
+      // Update the document with its own ID as productId
+<span class="cstat-no" title="statement not covered" >      await updateDoc(docRef, {</span>
+        productId: docRef.id
       });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      navigate('/manage');</span>
@@ -1085,15 +1104,14 @@ export default function AddProduct() {
       &lt;/article&gt;
     &lt;/section&gt;
   );
-}
-&nbsp;</pre></td></tr></table></pre>
+}</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-03T19:10:31.938Z
+                at 2025-05-05T04:36:25.160Z
             </div>
         <script src="prettify.js"></script>
         <script>
