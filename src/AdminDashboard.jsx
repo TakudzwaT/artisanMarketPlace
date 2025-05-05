@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -99,14 +98,29 @@ export default function AdminDashboard() {
       
       for (const storeDoc of storesSnapshot.docs) {
         const storeId = storeDoc.id;
+        const storeData = storeDoc.data();
+        
+        // Get products for this store
         const productsRef = collection(db, 'stores', storeId, 'products');
         const productsSnapshot = await getDocs(productsRef);
         
+        // Get store owner information
+        let sellerName = storeData.storeName || 'Unknown';
+        if (storeData.ownerId) {
+          const ownerRef = doc(db, 'users', storeData.ownerId);
+          const ownerSnap = await getDoc(ownerRef);
+          if (ownerSnap.exists()) {
+            sellerName = ownerSnap.data().name || ownerSnap.data().displayName || sellerName;
+          }
+        }
+        
+        // Add each product to our list with store info
         productsSnapshot.forEach((productDoc) => {
           productsList.push({
             id: productDoc.id,
             storeId,
-            storeName: storeDoc.data().storeName,
+            storeName: storeData.storeName || 'Unknown Store',
+            sellerName,
             ...productDoc.data()
           });
         });
@@ -119,6 +133,7 @@ export default function AdminDashboard() {
       setIsLoading(false);
     }
   };
+
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
@@ -164,7 +179,6 @@ export default function AdminDashboard() {
     
     setOpenDialog(false);
   };
-  // ... (keep other functions the same until disableUser/deleteUser)
 
   const disableUser = async (user) => {
     try {
@@ -203,17 +217,17 @@ export default function AdminDashboard() {
     }
   };
 
-  // ... (keep the rest of the component the same except products table cell)
-
-  // In products table rendering:
   const filteredUsers = users.filter(user => 
     user.email?.toLowerCase().includes(searchTerm) || 
-    user.displayName?.toLowerCase().includes(searchTerm)
+    user.displayName?.toLowerCase().includes(searchTerm) ||
+    user.name?.toLowerCase().includes(searchTerm)
   );
 
   const filteredProducts = products.filter(product => 
     product.name?.toLowerCase().includes(searchTerm) || 
-    product.description?.toLowerCase().includes(searchTerm)
+    product.description?.toLowerCase().includes(searchTerm) ||
+    product.storeName?.toLowerCase().includes(searchTerm) ||
+    product.sellerName?.toLowerCase().includes(searchTerm)
   );
 
   if (isLoading) {
@@ -292,13 +306,15 @@ export default function AdminDashboard() {
                   filteredUsers.map(user => (
                     <article key={user.id} style={styles.tableRow}>
                       <span style={{...styles.tableCell, ...styles.idColumn}}>{user.id.substring(0, 8)}...</span>
-                      <span style={{...styles.tableCell, ...styles.nameColumn}}>{user.name || 'N/A'}</span>
+                      <span style={{...styles.tableCell, ...styles.nameColumn}}>{user.name || user.displayName || 'N/A'}</span>
                       <span style={{...styles.tableCell, ...styles.emailColumn}}>{user.email || 'N/A'}</span>
                       <span style={{...styles.tableCell, ...styles.roleColumn}}>
                         {user.buyer && 'Buyer'} 
                         {user.buyer && user.seller && ', '} 
                         {user.seller && 'Seller'}
-                        {!user.buyer && !user.seller && 'None'}
+                        {user.admin && (user.buyer || user.seller) && ', '}
+                        {user.admin && 'Admin'}
+                        {!user.buyer && !user.seller && !user.admin && 'None'}
                       </span>
                       <span style={{...styles.tableCell, ...styles.statusColumn}}>
                         <span style={{
@@ -318,6 +334,7 @@ export default function AdminDashboard() {
                           size="small"
                           onClick={() => openConfirmationDialog(user, 'disable', 'user')}
                           style={styles.actionButton}
+                          disabled={user.disabled}
                         >
                           {user.disabled ? 'Already Disabled' : 'Disable Access'}
                         </Button>
@@ -344,7 +361,7 @@ export default function AdminDashboard() {
                 <span style={{...styles.tableCell, ...styles.idColumn}}>ID</span>
                 <span style={{...styles.tableCell, ...styles.nameColumn}}>Product</span>
                 <span style={{...styles.tableCell, ...styles.priceColumn}}>Price</span>
-                <span style={{...styles.tableCell, ...styles.sellerColumn}}>Seller</span>
+                <span style={{...styles.tableCell, ...styles.sellerColumn}}>Store / Seller</span>
                 <span style={{...styles.tableCell, ...styles.actionsColumn}}>Actions</span>
               </header>
               
@@ -355,7 +372,10 @@ export default function AdminDashboard() {
                       <span style={{...styles.tableCell, ...styles.idColumn}}>{product.id.substring(0, 8)}...</span>
                       <span style={{...styles.tableCell, ...styles.nameColumn}}>{product.name || 'N/A'}</span>
                       <span style={{...styles.tableCell, ...styles.priceColumn}}>R{product.price || 0}</span>
-                      <span style={{...styles.tableCell, ...styles.sellerColumn}}>{product.sellerName || product.sellerId || 'Unknown'}</span>
+                      <span style={{...styles.tableCell, ...styles.sellerColumn}}>
+                        {product.storeName || 'Unknown Store'} 
+                        {product.sellerName && product.sellerName !== product.storeName && ` / ${product.sellerName}`}
+                      </span>
                       <span style={{...styles.tableCell, ...styles.actionsColumn}}>
                         <Button 
                           variant="outlined" 
@@ -388,10 +408,10 @@ export default function AdminDashboard() {
         <DialogContent>
           <DialogContentText>
             {dialogType === 'user' && dialogAction === 'disable' && (
-              `Are you sure you want to disable all access for ${selectedItem?.displayName || selectedItem?.email || 'this user'}? They will not be able to log in as buyer or seller.`
+              `Are you sure you want to disable all access for ${selectedItem?.name || selectedItem?.displayName || selectedItem?.email || 'this user'}? They will not be able to log in as buyer or seller.`
             )}
             {dialogType === 'user' && dialogAction === 'delete' && (
-              `Are you sure you want to permanently delete ${selectedItem?.displayName || selectedItem?.email || 'this user'}? This action cannot be undone.`
+              `Are you sure you want to permanently delete ${selectedItem?.name || selectedItem?.displayName || selectedItem?.email || 'this user'}? This action cannot be undone.`
             )}
             {dialogType === 'product' && (
               `Are you sure you want to remove the product "${selectedItem?.name || 'this product'}"? This action cannot be undone.`
@@ -410,10 +430,6 @@ export default function AdminDashboard() {
     </section>
   );
 }
-
-// Keep styles object the same
-
-
 
 const styles = {
   container: {
