@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 import { useCart } from './CartContext';
-import { BsFillBagFill, BsCart } from "react-icons/bs";
+import { BsFillBagFill } from "react-icons/bs";
 import './BuyerHomeCard.css';
 
 const BuyerHomeCard = ({ product = {} }) => {
-  const { addToCart, shoppingCart } = useCart();
+  const { addToCart } = useCart();
   const auth = getAuth();
   const navigate = useNavigate();
   const [showSuccess, setShowSuccess] = useState(false);
@@ -16,14 +16,9 @@ const BuyerHomeCard = ({ product = {} }) => {
       navigate('/login');
       return;
     }
-
     addToCart(product);
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 2000);
-  };
-
-  const viewCart = () => {
-    navigate('/cart');
   };
 
   return (
@@ -44,29 +39,18 @@ const BuyerHomeCard = ({ product = {} }) => {
             {product.prevPrice && (
               <del className="buyer-prev-price">R{product.prevPrice}</del>
             )}
-            <strong className="buyer-new-price">R{product.price?.toFixed(2)}</strong>
+            <strong className="buyer-new-price">
+              R{product.price?.toFixed(2)}
+            </strong>
           </section>
 
-          <section className="buyer-card-actions">
-            <button
-              className="buyer-bag-button"
-              aria-label="Add to cart"
-              onClick={handleAddToCart}
-            >
-              <BsFillBagFill className="buyer-bag-icon" />
-            </button>
-
-            <button
-              className="view-cart-button"
-              onClick={viewCart}
-              disabled={shoppingCart.length === 0}
-            >
-              <BsCart className="cart-icon" />
-              {shoppingCart.length > 0 && (
-                <em className="cart-badge">{shoppingCart.length}</em>
-              )}
-            </button>
-          </section>
+          <button
+            className="buyer-bag-button"
+            aria-label="Add to cart"
+            onClick={handleAddToCart}
+          >
+            <BsFillBagFill className="buyer-bag-icon" />
+          </button>
         </section>
       </section>
 

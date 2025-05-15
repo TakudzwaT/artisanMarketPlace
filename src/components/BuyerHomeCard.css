@@ -2,6 +2,7 @@
 /* Scoped styles with unique class names to avoid conflicts */
 
 .buyer-card {
+  position: relative; /* added to contain the success overlay */
   width: 250px;
   margin: 15px;
   border: 1px solid #ededed;
@@ -106,6 +107,12 @@
   color: #333;
 }
 
+.buyer-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .buyer-bag-button {
   background-color: #f5f5f5;
   border: none;
@@ -132,6 +139,30 @@
   color: white;
 }
 
+.view-cart-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  padding: 5px;
+}
+
+.cart-icon {
+  font-size: 1.2rem;
+  color: #535353;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+}
+
 .success-message {
   position: absolute;
   top: 0;
@@ -146,4 +177,5 @@
   font-weight: bold;
   font-size: 1.2rem;
   z-index: 10;
+  transition: opacity 0.3s;
 }
