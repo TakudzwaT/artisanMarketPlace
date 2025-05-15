@@ -1,91 +1,102 @@
+// ManageStore.test.jsx
 import React from 'react';
-import { MemoryRouter } from 'react-router-dom';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
 import ManageStore from './ManageStore';
-import { useAuthState } from 'react-firebase-hooks/auth';
 import * as firestore from 'firebase/firestore';
 
-// Mock react-firebase-hooks/auth
-jest.mock('react-firebase-hooks/auth', () => ({
-  useAuthState: jest.fn(),
-}));
-
-// Mock firebase/firestore functions
-jest.mock('firebase/firestore', () => {
-  const originalModule = jest.requireActual('firebase/firestore');
+// Mock react-router-dom
+jest.mock('react-router-dom', () => {
+  const originalModule = jest.requireActual('react-router-dom');
   return {
     ...originalModule,
-    getDoc: jest.fn(),
-    collection: jest.fn(),
-    query: jest.fn(),
-    where: jest.fn(),
-    onSnapshot: jest.fn(),
-    deleteDoc: jest.fn(),
-    doc: jest.fn(),
-    updateDoc: jest.fn(),
+    useNavigate: jest.fn(),
   };
 });
 
-// Mock auth
+// Mock Firebase/Firestore
+jest.mock('firebase/firestore', () => ({
+  doc: jest.fn(),
+  getDoc: jest.fn(),
+  collection: jest.fn(),
+  query: jest.fn(),
+  onSnapshot: jest.fn(),
+  updateDoc: jest.fn(),
+  deleteDoc: jest.fn(),
+}));
+
+// Mock your Firebase exports
 jest.mock('../firebase', () => ({
   auth: {
     onAuthStateChanged: jest.fn(),
-    currentUser: { uid: '123' },
+    currentUser: { uid: '123', displayName: 'Test User' },
   },
   db: {},
 }));
 
-describe('ManageStore UI tests', () => {
+// Mock the Navi component
+jest.mock('./sellerNav', () => {
+  return {
+    __esModule: true,
+    default: () => <div data-testid="seller-nav">Navigation</div>,
+  };
+});
+
+describe('ManageStore Component', () => {
+  const mockNavigate = jest.fn();
   const mockUser = { uid: '123', displayName: 'Test User' };
-  const mockProduct = {
-    id: 'p1',
-    data: () => ({
+  const mockProducts = [
+    {
+      id: 'p1',
       name: 'Product 1',
       price: 10.99,
       imageUrl: 'http://example.com/image1.jpg',
       category: 'Category 1',
       stock: 5,
-      status: 'Active'
-    }),
-  };
+      status: 'Active',
+    },
+    {
+      id: 'p2',
+      name: 'Product 2',
+      price: 20.99,
+      imageUrl: 'http://example.com/image2.jpg',
+      category: 'Category 2',
+      stock: 0,
+      status: 'Out of Stock',
+    },
+  ];
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
-    // Mock auth.onAuthStateChanged implementation
-    require('../firebase').auth.onAuthStateChanged.mockImplementation((callback) => {
-      callback(mockUser);
-      return jest.fn(); // unsubscribe function
+    useNavigate.mockReturnValue(mockNavigate);
+  });
+
+  test('displays loading state initially', async () => {
+    // Setup auth to not immediately call the callback
+    const { auth } = require('../firebase');
+    auth.onAuthStateChanged.mockImplementation(() => {
+      // Don't call the callback yet, to keep it in loading state
+      return () => {};
     });
 
-    // Mock console.error to prevent error logs in test output
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
-
-  test('displays loading spinner initially', async () => {
-    useAuthState.mockReturnValue([{}, true, null]); // loading state
     render(
       <MemoryRouter>
         <ManageStore />
       </MemoryRouter>
     );
 
-    await waitFor(() => {
-      expect(screen.getByRole('progressbar')).toBeInTheDocument();
-    });
+    // Should show loading spinner
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
   });
 
-  test('displays error if user not authenticated', async () => {
-    useAuthState.mockReturnValue([null, false, null]);
-    require('../firebase').auth.onAuthStateChanged.mockImplementation((callback) => {
+  test('shows error when user is not authenticated', async () => {
+    // Setup auth to return null (not authenticated)
+    const { auth } = require('../firebase');
+    auth.onAuthStateChanged.mockImplementation((callback) => {
       callback(null);
-      return jest.fn();
+      return () => {};
     });
-    
+
     render(
       <MemoryRouter>
         <ManageStore />
@@ -93,28 +104,162 @@ describe('ManageStore UI tests', () => {
     );
 
     await waitFor(() => {
-      expect(
-        screen.getByText('Please login to access your store')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Please login to access your store')).toBeInTheDocument();
     });
+    
+    const backToLoginButton = screen.getByText('Back to Login');
+    expect(backToLoginButton).toBeInTheDocument();
+    
+    fireEvent.click(backToLoginButton);
+    expect(mockNavigate).toHaveBeenCalledWith('/login');
   });
 
-  test('renders ManageStore UI with mock products', async () => {
-    useAuthState.mockReturnValue([mockUser, false, null]);
+  test('shows store data and products when authenticated', async () => {
+    // Setup auth to return a user
+    const { auth } = require('../firebase');
+    auth.onAuthStateChanged.mockImplementation((callback) => {
+      callback(mockUser);
+      return () => {};
+    });
 
-    // Mock store document
+    // Mock getDoc for store data
     firestore.getDoc.mockResolvedValueOnce({
       exists: () => true,
       data: () => ({ name: 'Test Store' }),
     });
 
-    // Mock products collection
-    const mockUnsubscribe = jest.fn();
-    firestore.onSnapshot.mockImplementation((_, callback) => {
-      callback({
-        docs: [mockProduct],
+    // Mock onSnapshot for products
+    firestore.onSnapshot.mockImplementation((_, successCallback) => {
+      successCallback({
+        docs: mockProducts.map(product => ({
+          id: product.id,
+          data: () => ({
+            ...product,
+            price: parseFloat(product.price), // Convert price to number as component expects
+          }),
+        })),
       });
-      return mockUnsubscribe;
+      return () => {};
+    });
+
+    // Mock doc function
+    firestore.doc.mockReturnValue({});
+    firestore.collection.mockReturnValue({});
+    firestore.query.mockReturnValue({});
+
+    render(
+      <MemoryRouter>
+        <ManageStore />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Manage Test Store')).toBeInTheDocument();
+    });
+
+    // Check if products are displayed
+    expect(screen.getByText('Product 1')).toBeInTheDocument();
+    expect(screen.getByText('Category 1')).toBeInTheDocument();
+    expect(screen.getByText('R10.99')).toBeInTheDocument();
+    expect(screen.getByText('5')).toBeInTheDocument();
+    expect(screen.getByText('Active')).toBeInTheDocument();
+
+    expect(screen.getByText('Product 2')).toBeInTheDocument();
+    expect(screen.getByText('Category 2')).toBeInTheDocument();
+    expect(screen.getByText('R20.99')).toBeInTheDocument();
+    expect(screen.getByText('0')).toBeInTheDocument();
+    expect(screen.getByText('Out of Stock')).toBeInTheDocument();
+  });
+
+  test('creates store data when store document does not exist', async () => {
+    // Setup auth to return a user
+    const { auth } = require('../firebase');
+    auth.onAuthStateChanged.mockImplementation((callback) => {
+      callback(mockUser);
+      return () => {};
+    });
+
+    // Mock getDoc for store data (store doesn't exist)
+    firestore.getDoc.mockResolvedValueOnce({
+      exists: () => false,
+    });
+
+    // Mock getDoc for user data (user is a seller)
+    firestore.getDoc.mockResolvedValueOnce({
+      exists: () => true,
+      data: () => ({ seller: true }),
+    });
+
+    // Mock onSnapshot for products
+    firestore.onSnapshot.mockImplementation((_, successCallback) => {
+      successCallback({ docs: [] }); // No products
+      return () => {};
+    });
+
+    render(
+      <MemoryRouter>
+        <ManageStore />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(`Manage ${mockUser.displayName}'s Store`)).toBeInTheDocument();
+    });
+  });
+
+  test('shows error when failed to load store data', async () => {
+    // Setup auth to return a user
+    const { auth } = require('../firebase');
+    auth.onAuthStateChanged.mockImplementation((callback) => {
+      callback(mockUser);
+      return () => {};
+    });
+
+    // Mock getDoc to throw an error
+    const errorMessage = 'Failed to load store data';
+    firestore.getDoc.mockRejectedValueOnce(new Error(errorMessage));
+
+    // Spy on console.error
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    render(
+      <MemoryRouter>
+        <ManageStore />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed to load store data')).toBeInTheDocument();
+      expect(console.error).toHaveBeenCalledWith('Error fetching store:', expect.any(Error));
+    });
+  });
+
+  test('filters products when searching', async () => {
+    // Setup auth to return a user
+    const { auth } = require('../firebase');
+    auth.onAuthStateChanged.mockImplementation((callback) => {
+      callback(mockUser);
+      return () => {};
+    });
+
+    // Mock getDoc for store data
+    firestore.getDoc.mockResolvedValueOnce({
+      exists: () => true,
+      data: () => ({ name: 'Test Store' }),
+    });
+
+    // Mock onSnapshot for products
+    firestore.onSnapshot.mockImplementation((_, successCallback) => {
+      successCallback({
+        docs: mockProducts.map(product => ({
+          id: product.id,
+          data: () => ({
+            ...product,
+            price: parseFloat(product.price),
+          }),
+        })),
+      });
+      return () => {};
     });
 
     render(
@@ -125,19 +270,48 @@ describe('ManageStore UI tests', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Manage Test Store')).toBeInTheDocument();
-      // Use getAllByText instead of ambiguous role selectors
-      expect(screen.getAllByText('Product 1')[0]).toBeInTheDocument();
-      expect(screen.getByText('Category 1')).toBeInTheDocument();
-      expect(screen.getByText('R10.99')).toBeInTheDocument();
-      expect(screen.getByText('5')).toBeInTheDocument();
     });
+
+    // Initially both products should be visible
+    expect(screen.getByText('Product 1')).toBeInTheDocument();
+    expect(screen.getByText('Product 2')).toBeInTheDocument();
+
+    // Search for Category 1
+    const searchInput = screen.getByPlaceholderText('Search products...');
+    fireEvent.change(searchInput, { target: { value: 'Category 1' } });
+
+    // Now only Product 1 should be visible
+    expect(screen.getByText('Product 1')).toBeInTheDocument();
+    expect(screen.queryByText('Product 2')).not.toBeInTheDocument();
   });
 
-  test('handles error when fetching store data', async () => {
-    useAuthState.mockReturnValue([mockUser, false, null]);
+  test('shows delete modal when delete button is clicked', async () => {
+    // Setup auth to return a user
+    const { auth } = require('../firebase');
+    auth.onAuthStateChanged.mockImplementation((callback) => {
+      callback(mockUser);
+      return () => {};
+    });
 
-    // Mock store document to throw error
-    firestore.getDoc.mockRejectedValueOnce(new Error('Fetch error'));
+    // Mock getDoc for store data
+    firestore.getDoc.mockResolvedValueOnce({
+      exists: () => true,
+      data: () => ({ name: 'Test Store' }),
+    });
+
+    // Mock onSnapshot for products
+    firestore.onSnapshot.mockImplementation((_, successCallback) => {
+      successCallback({
+        docs: mockProducts.map(product => ({
+          id: product.id,
+          data: () => ({
+            ...product,
+            price: parseFloat(product.price),
+          }),
+        })),
+      });
+      return () => {};
+    });
 
     render(
       <MemoryRouter>
@@ -146,8 +320,131 @@ describe('ManageStore UI tests', () => {
     );
 
     await waitFor(() => {
-      expect(console.error).toHaveBeenCalledWith('Error fetching store:', expect.any(Error));
-      expect(screen.getByText('Failed to load store data')).toBeInTheDocument();
+      expect(screen.getByText('Manage Test Store')).toBeInTheDocument();
     });
+
+    // Click delete button
+    const deleteButton = screen.getByText('Delete');
+    fireEvent.click(deleteButton);
+
+    // Modal should be visible
+    expect(screen.getByText('Delete Product')).toBeInTheDocument();
+    expect(screen.getAllByText(/R\d+\.\d+ • \d+ in stock/)[0]).toBeInTheDocument();
+  });
+
+  test('can delete a product', async () => {
+    // Setup auth to return a user
+    const { auth } = require('../firebase');
+    auth.onAuthStateChanged.mockImplementation((callback) => {
+      callback(mockUser);
+      return () => {};
+    });
+
+    // Mock getDoc for store data
+    firestore.getDoc.mockResolvedValueOnce({
+      exists: () => true,
+      data: () => ({ name: 'Test Store' }),
+    });
+
+    // Mock onSnapshot for products
+    firestore.onSnapshot.mockImplementation((_, successCallback) => {
+      successCallback({
+        docs: mockProducts.map(product => ({
+          id: product.id,
+          data: () => ({
+            ...product,
+            price: parseFloat(product.price),
+          }),
+        })),
+      });
+      return () => {};
+    });
+
+    // Mock deleteDoc
+    firestore.deleteDoc.mockResolvedValueOnce();
+
+    render(
+      <MemoryRouter>
+        <ManageStore />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Manage Test Store')).toBeInTheDocument();
+    });
+
+    // Click delete button
+    const deleteButton = screen.getByText('Delete');
+    fireEvent.click(deleteButton);
+
+    // Select a product to delete (first in list)
+    const productListItems = screen.getAllByRole('listitem');
+    fireEvent.click(productListItems[0]);
+
+    // Click confirm delete
+    const confirmButton = screen.getByText('Confirm Delete');
+    fireEvent.click(confirmButton);
+
+    // deleteDoc should have been called
+    expect(firestore.deleteDoc).toHaveBeenCalled();
+  });
+
+  test('can update product stock', async () => {
+    // Setup auth to return a user
+    const { auth } = require('../firebase');
+    auth.onAuthStateChanged.mockImplementation((callback) => {
+      callback(mockUser);
+      return () => {};
+    });
+
+    // Mock getDoc for store data
+    firestore.getDoc.mockResolvedValueOnce({
+      exists: () => true,
+      data: () => ({ name: 'Test Store' }),
+    });
+
+    // Mock onSnapshot for products
+    firestore.onSnapshot.mockImplementation((_, successCallback) => {
+      successCallback({
+        docs: mockProducts.map(product => ({
+          id: product.id,
+          data: () => ({
+            ...product,
+            price: parseFloat(product.price),
+          }),
+        })),
+      });
+      return () => {};
+    });
+
+    // Mock window.prompt
+    global.prompt = jest.fn().mockReturnValue('10');
+    
+    // Mock updateDoc
+    firestore.updateDoc.mockResolvedValueOnce();
+
+    render(
+      <MemoryRouter>
+        <ManageStore />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Manage Test Store')).toBeInTheDocument();
+    });
+
+    // Find and click edit button (SVG icon)
+    const editButtons = screen.getAllByRole('button');
+    const editButton = editButtons.find(button => button.innerHTML.includes('Edit'));
+    fireEvent.click(editButton);
+
+    // Check if prompt was called
+    expect(global.prompt).toHaveBeenCalledWith('Enter new stock quantity:');
+    
+    // Check if updateDoc was called with correct data
+    expect(firestore.updateDoc).toHaveBeenCalledWith(
+      expect.anything(),
+      { stock: 10, status: 'Active' }
+    );
   });
 });
