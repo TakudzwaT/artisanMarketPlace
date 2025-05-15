@@ -88,7 +88,8 @@ export default function PaymentPage() {
           price: item.price,
           qty: item.qty,
           total: item.totalProductPrice,
-          storeId: item.storeId
+          storeId: item.storeId,
+          status: 'pending'
         })),
         total: totalAmount,
         createdAt: serverTimestamp()
@@ -105,6 +106,7 @@ export default function PaymentPage() {
           orderId: orderRef.id,
           productId: item.productId || item.id,
           qty: item.qty,
+          status: 'pending',
           purchasedAt: serverTimestamp()
         });
   

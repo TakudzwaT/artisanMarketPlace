@@ -9,8 +9,8 @@ import { CircularProgress, IconButton } from '@mui/material';
 import { ArrowBack, CloudUpload, Category, AttachMoney, Inventory } from '@mui/icons-material';
 
 const categoryOptions = [
-  'Home Decor', 'Jewelry', 'Artwork', 'Clothing', 'Pottery',
-  'Woodworking', 'Textiles', 'Accessories', 'Stationery', 'Other'
+  'Textile', 'Jewelry', 'Artwork', 'Clothing', 'Pottery',
+  'Woodwork', 'Textiles','Ceramics' ,'Accessories', 'Stationery', 'Other'
 ];
 
 export default function AddProduct() {

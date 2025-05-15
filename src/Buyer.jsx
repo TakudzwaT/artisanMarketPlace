@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
-import Card from './components/card';
 import Navigation from './components/nav';
 import { useNavigate } from 'react-router-dom';
+import OrderCard from './components/OrderCard';
+import './styling/BuyerTrack.css';
 
 function BuyerTrack() {
   const [orders, setOrders] = useState([]);
@@ -116,13 +117,15 @@ function BuyerTrack() {
                 id: orderDoc.id,
                 orderId: orderDoc.id,
                 itemId: item.productId,
+                productId: item.productId,
                 productName: (productDetails?.name || item.name || "Product"),
                 productPrice: (item.price || productDetails?.price || 0),
                 quantity: item.qty || 1,
                 totalAmount: ((item.price || productDetails?.price || 0) * (item.qty || 1)),
                 imageUrl: (productDetails?.imageUrl || item.imageUrl || "/api/placeholder/400/320"),
                 formattedDate: formattedDate,
-                status: orderData.status || "processing",
+                // Use item-specific status if available, otherwise fall back to order status
+                status: item.status || orderData.status || "processing",
                 storeId: item.storeId,
                 shopName: storeDetails?.storeName || item.storeName || "Shop"
               });
@@ -179,36 +182,58 @@ function BuyerTrack() {
   }, [userId]);
 
   return (
-    <>
+    <main className="orders-page">
       <Navigation />
-      <section className='ordersSec'>
+      <section className="orders-container">
+        <header className="orders-header">
+          <h1 className="orders-title" id="orders-heading">
+            Your Handcrafted Orders
+            <span className="title-decoration"></span>
+          </h1>
+          <p className="orders-subtitle">
+            Track your unique artisanal purchases
+          </p>
+        </header>
+        
         {loading ? (
-          <div className="loading">
-            <p>Loading your orders...</p>
+          <div className="loading-container">
+            <div className="spinner"></div>
+            <p className="loading-text">Gathering your artisanal orders...</p>
           </div>
         ) : error ? (
-          <div className="error">
+          <div className="error-container">
             <p>{error}</p>
-            <button onClick={() => window.location.reload()}>Retry</button>
+            <button 
+              className="retry-button" 
+              onClick={() => window.location.reload()}
+            >
+              Try Again
+            </button>
           </div>
         ) : orders.length === 0 ? (
-          <p className="no-orders">You haven't placed any orders yet.</p>
+          <div className="no-orders">
+            <p>You haven't placed any orders yet. Discover unique handcrafted items from our artisans.</p>
+          </div>
         ) : (
-          orders.map((order, index) => (
-            <Card
-              key={`${order.id}-${order.itemId || index}`}
-              description={order.productName}
-              price={order.totalAmount}
-              date={order.formattedDate}
-              OrderID={order.orderId}
-              Img={order.imageUrl}
-              status={order.status}
-              shopName={order.shopName}
-            />
-          ))
+          <ul className="orders-list">
+            {orders.map((order, index) => (
+              <li key={`${order.id}-${order.itemId || index}`}>
+                <OrderCard
+                  description={order.productName}
+                  price={order.totalAmount}
+                  date={order.formattedDate}
+                  OrderID={order.orderId}
+                  ProductID={order.productId}
+                  Img={order.imageUrl}
+                  status={order.status}
+                  shopName={order.shopName}
+                />
+              </li>
+            ))}
+          </ul>
         )}
       </section>
-    </>
+    </main>
   );
 }
 

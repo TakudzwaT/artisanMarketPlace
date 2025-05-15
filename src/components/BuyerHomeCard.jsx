@@ -48,7 +48,7 @@ const BuyerHomeCard = ({ product = {} }) => {
             className="buyer-bag-button"
             aria-label="Add to cart"
             onClick={handleAddToCart}
-          >
+          >+
             <BsFillBagFill className="buyer-bag-icon" />
           </button>
         </section>
