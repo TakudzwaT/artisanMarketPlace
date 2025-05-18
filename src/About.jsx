@@ -18,7 +18,7 @@ function AboutUs() {
                     <li><strong>Lazola Simane</strong> Creative Spark ⚡ (Every great idea starts with Lazola saying “What if we just...”)</li>
                 </ul>
                 <p className="closing-text">
-                    We're on a mission to make buying local feel global. Thanks for being part of our journey!
+                    We are on a mission to make buying local feel global. Thanks for being part of our journey!
                 </p>
             </div>
         </>
