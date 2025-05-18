@@ -105,7 +105,6 @@ export default function LandingPage() {
           transition: 'transform 0.3s ease, box-shadow 0.3s ease',
           opacity: 0,
           transform: 'translateY(20px)',
-          transition: 'all 0.8s ease-out 0.4s',
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
         }} className="fade-in" 
            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
@@ -122,7 +121,6 @@ export default function LandingPage() {
           transition: 'transform 0.3s ease, box-shadow 0.3s ease',
           opacity: 0,
           transform: 'translateY(20px)',
-          transition: 'all 0.8s ease-out 0.6s',
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
         }} className="fade-in"
            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}

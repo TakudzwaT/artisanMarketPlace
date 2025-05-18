@@ -30,11 +30,7 @@ describe('LoadCredits component tests', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
-    // Set up mocks
     auth.getAuth.mockReturnValue(mockAuth);
-    
-    // Mock console.error to prevent error logs in test output
     jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
@@ -44,124 +40,125 @@ describe('LoadCredits component tests', () => {
 
   test('renders LoadCredits component correctly', () => {
     render(<LoadCredits />);
-    
     expect(screen.getByLabelText(/load credits/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText('R0.00')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /load/i })).toBeInTheDocument();
   });
 
-  test('handles invalid amount input', async () => {
+  test('handles invalid amount input', () => {
     render(<LoadCredits />);
-    
     const input = screen.getByLabelText(/load credits/i);
     const button = screen.getByRole('button', { name: /load/i });
-    
-    // Test with negative value
+
     fireEvent.change(input, { target: { value: '-10' } });
     fireEvent.click(button);
-    
     expect(screen.getByText('Enter a valid amount')).toBeInTheDocument();
-    
-    // Test with non-numeric value
+
     fireEvent.change(input, { target: { value: 'abc' } });
     fireEvent.click(button);
-    
     expect(screen.getByText('Enter a valid amount')).toBeInTheDocument();
   });
 
   test('successfully loads credits when user has no previous credits', async () => {
-    // Mock Firestore document references and responses
     firestore.doc.mockReturnValue('userDocRef');
     firestore.getDoc.mockResolvedValue({
       exists: () => true,
       data: () => ({ name: 'Test User' }) // No credits field
     });
     firestore.updateDoc.mockResolvedValue();
-    
+
     render(<LoadCredits />);
-    
     const input = screen.getByLabelText(/load credits/i);
     const button = screen.getByRole('button', { name: /load/i });
-    
+
     fireEvent.change(input, { target: { value: '50' } });
     fireEvent.click(button);
-    
-    // Check loading state
+
     expect(button).toBeDisabled();
     expect(button).toHaveTextContent('Loading...');
-    
-    // Wait for the async operation to complete
+
     await waitFor(() => {
       expect(firestore.updateDoc).toHaveBeenCalledWith('userDocRef', { credits: 50 });
       expect(screen.getByText('Successfully loaded R50.00')).toBeInTheDocument();
     });
-    
-    // Check that input was cleared
+
     expect(input.value).toBe('');
   });
 
-  test('successfully adds to existing credits', async () => {
-    // Mock Firestore document references and responses
+  test('successfully adds to existing credits under the cap', async () => {
     firestore.doc.mockReturnValue('userDocRef');
     firestore.getDoc.mockResolvedValue({
       exists: () => true,
-      data: () => ({ credits: 100 }) // User already has 100 credits
+      data: () => ({ credits: 100 })
     });
     firestore.updateDoc.mockResolvedValue();
-    
+
     render(<LoadCredits />);
-    
     const input = screen.getByLabelText(/load credits/i);
     const button = screen.getByRole('button', { name: /load/i });
-    
+
     fireEvent.change(input, { target: { value: '50' } });
     fireEvent.click(button);
-    
-    // Wait for the async operation to complete
+
     await waitFor(() => {
       expect(firestore.updateDoc).toHaveBeenCalledWith('userDocRef', { credits: 150 });
       expect(screen.getByText('Successfully loaded R50.00')).toBeInTheDocument();
     });
   });
 
-  test('handles error when loading credits', async () => {
-    // Mock Firestore to throw an error
+  test('prevents loading if total exceeds 10,000 credits', async () => {
     firestore.doc.mockReturnValue('userDocRef');
-    firestore.getDoc.mockRejectedValue(new Error('Database error'));
-    
+    firestore.getDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({ credits: 9990 })
+    });
+
     render(<LoadCredits />);
-    
     const input = screen.getByLabelText(/load credits/i);
     const button = screen.getByRole('button', { name: /load/i });
-    
+
+    fireEvent.change(input, { target: { value: '20' } }); // Would exceed the cap
+    fireEvent.click(button);
+
+    await waitFor(() => {
+      expect(screen.getByText('Cannot load more than 10,000 credits')).toBeInTheDocument();
+    });
+
+    expect(firestore.updateDoc).not.toHaveBeenCalled();
+  });
+
+  test('handles error when loading credits', async () => {
+    firestore.doc.mockReturnValue('userDocRef');
+    firestore.getDoc.mockRejectedValue(new Error('Database error'));
+
+    render(<LoadCredits />);
+    const input = screen.getByLabelText(/load credits/i);
+    const button = screen.getByRole('button', { name: /load/i });
+
     fireEvent.change(input, { target: { value: '50' } });
     fireEvent.click(button);
-    
-    // Wait for the async operation to complete
+
     await waitFor(() => {
       expect(console.error).toHaveBeenCalledWith('Failed to load credits', expect.any(Error));
       expect(screen.getByText('Error loading credits')).toBeInTheDocument();
     });
   });
 
-  test('handles document that does not exist', async () => {
-    // Mock non-existent document
+  test('handles non-existent user document', async () => {
     firestore.doc.mockReturnValue('userDocRef');
     firestore.getDoc.mockResolvedValue({
       exists: () => false,
       data: () => null
     });
     firestore.updateDoc.mockResolvedValue();
-    
+
     render(<LoadCredits />);
-    
     const input = screen.getByLabelText(/load credits/i);
     const button = screen.getByRole('button', { name: /load/i });
-    
+
     fireEvent.change(input, { target: { value: '50' } });
     fireEvent.click(button);
-    
-    // Wait for the async operation to complete
+
     await waitFor(() => {
       expect(firestore.updateDoc).toHaveBeenCalledWith('userDocRef', { credits: 50 });
       expect(screen.getByText('Successfully loaded R50.00')).toBeInTheDocument();

@@ -63,7 +63,7 @@ export default function SignupPage() {
       alignItems: 'center',
       justifyContent: 'center',
       padding: '2rem',
-      fontFamily: "'Inter', sans-serif"
+      fontFamily: "'Inter', sans-serif'"
     },
     card: {
       backgroundColor: 'white',
@@ -73,6 +73,10 @@ export default function SignupPage() {
       textAlign: 'center',
       maxWidth: '500px',
       width: '100%'
+    },
+    logo: {
+      width: '80px',
+      marginBottom: '1.5rem'
     },
     title: {
       color: '#4B3621',
@@ -126,6 +130,13 @@ export default function SignupPage() {
   return (
     <main style={styles.container}>
       <section style={styles.card}>
+        {/* Market Logo */}
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/6738/6738021.png"
+          alt="Market Logo"
+          style={styles.logo}
+        />
+
         <h1 style={styles.title}>Join Artisan Market</h1>
         <p style={styles.subtitle}>Choose your role to get started</p>
         

@@ -7,7 +7,7 @@ import "./Navigation.css";
 
 function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { shoppingCart } = useCart();
+  const { totalQty } = useCart();        // ← grab totalQty
   const navigate = useNavigate();
   const auth = getAuth();
 
@@ -20,28 +20,24 @@ function Navigation() {
     }
   };
 
-  const cartBadge = shoppingCart.length > 0 && (
-    <span className="cart-badge-nav">{shoppingCart.length}</span>
+  const cartBadge = totalQty > 0 && (        // ← use totalQty
+    <span className="cart-badge-nav">{totalQty}</span>
   );
 
   const menuItems = (
     <>
       <li>
-        <NavLink to="/buyer" className="nav-link" activeClassName="active">
+        <NavLink to="/buyer" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
           Home
         </NavLink>
       </li>
       <li>
-        <NavLink
-          to="/BuyerOrders"
-          className="nav-link"
-          activeClassName="active"
-        >
+        <NavLink to="/BuyerOrders" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
           Orders
         </NavLink>
       </li>
       <li className="nav-cart">
-        <NavLink to="/cart" className="nav-link" activeClassName="active">
+        <NavLink to="/cart" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
           <BsCart className="cart-icon-nav" />
           {cartBadge}
         </NavLink>
@@ -64,7 +60,7 @@ function Navigation() {
       {/* Mobile menu button */}
       <button
         className="mobile-menu-button"
-        onClick={() => setIsMenuOpen((open) => !open)}
+        onClick={() => setIsMenuOpen(open => !open)}
       >
         {isMenuOpen ? "✕" : "☰"}
       </button>

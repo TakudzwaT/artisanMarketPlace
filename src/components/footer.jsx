@@ -3,7 +3,7 @@ function Footer(){
     return(
         <footer>
             <p>
-                &copy; {new Date().getFullYear()} Your website name
+                &copy; {new Date().getFullYear()} Local Artisan MarketPlace
             </p>
         </footer>
     );

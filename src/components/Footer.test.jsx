@@ -12,7 +12,7 @@ describe('Footer component', () => {
   test('renders the current year in the copyright', () => {
     render(<Footer />);
     const currentYear = new Date().getFullYear();
-    const text = screen.getByText(`© ${currentYear} Your website name`);
+    const text = screen.getByText(`© ${currentYear} Local Artisan MarketPlace`);
     expect(text).toBeInTheDocument();
   });
 });

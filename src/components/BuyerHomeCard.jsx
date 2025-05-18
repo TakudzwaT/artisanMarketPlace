@@ -24,11 +24,12 @@ const BuyerHomeCard = ({ product = {} }) => {
   return (
     <article className="buyer-card">
       <Link to={`/product/${product.id}`} className="buyer-card-image-container">
-        <img
-          src={product.imageUrl || "/placeholder.jpg"}
-          alt={product.name || "Product"}
-          className="buyer-card-img"
-        />
+    <img
+      src={product.imageUrl}
+      alt={product.name}
+      className="buyer-card-img"
+      loading="eager"
+  />
       </Link>
 
       <section className="buyer-card-details">

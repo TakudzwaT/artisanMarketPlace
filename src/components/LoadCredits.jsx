@@ -17,16 +17,24 @@ export default function LoadCredits() {
       setMessage('Enter a valid amount');
       return;
     }
+
     const user = auth.currentUser;
     if (!user) {
       setMessage('Please login first');
       return;
     }
+
     setLoading(true);
     try {
       const userRef = doc(db, 'users', user.uid);
       const snap = await getDoc(userRef);
       const current = snap.exists() && snap.data().credits ? snap.data().credits : 0;
+
+      if (current + value > 10000) {
+        setMessage('Cannot load more than 10,000 credits');
+        return;
+      }
+
       await updateDoc(userRef, { credits: current + value });
       setMessage(`Successfully loaded R${value.toFixed(2)}`);
       setAmount('');

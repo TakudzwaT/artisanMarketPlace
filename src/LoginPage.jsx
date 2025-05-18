@@ -62,11 +62,11 @@ export default function LoginPage() {
   return (
     <main style={styles.container}>
       <div style={styles.card}>
-        <img 
-          src="https://cdn-icons-png.flaticon.com/512/1046/1046784.png" 
-          alt="Market Logo" 
-          style={styles.logo}
-        />
+  <img 
+    src="https://cdn-icons-png.flaticon.com/512/6738/6738021.png" 
+    alt="Market Icon" 
+    style={styles.logo}
+  />
         <h1 style={styles.title}>Artisan Market</h1>
         <p style={styles.subtitle}>Handcrafted treasures await</p>
         
