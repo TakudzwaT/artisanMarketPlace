@@ -22,7 +22,7 @@ const OrderCard = ({ description, price, date, OrderID, ProductID, Img, status, 
         
         <div className="order-details">
           <span className="product-price">
-            ${parseFloat(price).toFixed(2)}
+            R{parseFloat(price).toFixed(2)}
           </span>
           
           <time className="order-date" dateTime={date}>

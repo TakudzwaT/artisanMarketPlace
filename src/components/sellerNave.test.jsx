@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import Navi from './sellerNav'; 
+import Navi from './sellerNav';
 
 jest.mock('firebase/auth', () => ({
   getAuth: jest.fn(() => ({})),
@@ -36,7 +35,6 @@ describe('Navi component', () => {
     fireEvent.click(button);
     expect(button).toHaveTextContent('✕');
     expect(screen.getByTestId('mobile-manage-link')).toBeInTheDocument();
-
 
     fireEvent.click(button);
     expect(button).toHaveTextContent('☰');

@@ -290,18 +290,6 @@ export default function CreateStore() {
             />
             Pick-up (Customers can collect from your location)
           </label>
-  
-          <label style={styles.checkboxLabel}>
-            <input
-              type="checkbox"
-              name="delivery"
-              value="local"
-              checked={form.delivery.includes('local')}
-              onChange={handleChange}
-              style={styles.checkbox}
-            />
-            Local Delivery (You deliver to nearby areas)
-          </label>
         </section>
   
         <button 

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 import { useCart } from './CartContext';
-import Navbar from './nav';
+import Navigation from './nav';
 import './CartPage.css';
 
 export default function CartPage() {
@@ -22,7 +22,7 @@ export default function CartPage() {
   if (loading) {
     return (
       <main className="cart-container">
-        <Navbar />
+        <Navigation />
         <section className="loading-container animate-pulse">
           <p>Loading your cart...</p>
         </section>
@@ -31,12 +31,14 @@ export default function CartPage() {
   }
 
   return (
+    <>
+    <Navigation />
     <main className="cart-container fade-in">
-      <Navbar />
+      
       <header>
         <h1 className="cart-title">Your Shopping Cart</h1>
       </header>
-
+      
       {shoppingCart.length === 0 ? (
         <section className="empty-cart slide-up">
           <p>Your cart is empty</p>
@@ -89,5 +91,6 @@ export default function CartPage() {
         </>
       )}
     </main>
+    </>
   );
 }

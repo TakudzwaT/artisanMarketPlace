@@ -18,6 +18,7 @@ export default function BuyerHome() {
   const [selectedPrice, setSelectedPrice] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -57,6 +58,8 @@ export default function BuyerHome() {
       if (selectedPrice === "150") matchPrice = price > 100 && price <= 150;
       if (selectedPrice === "200") matchPrice = price > 150 && price <= 200;
       if (selectedPrice === "250") matchPrice = price > 200 && price <= 250;
+      if (selectedPrice === "1000") matchPrice = price > 250 && price <= 1000;
+      if (selectedPrice === "5000000") matchPrice = price > 1000 && price <= 5000000;
     }
 
     const matchColor = selectedColor
@@ -81,8 +84,8 @@ export default function BuyerHome() {
   return (
     <main className="buyer-home-container">
       <header>
-        <Nav />
-      </header>
+  <Nav />
+</header>
 
       <section className="buyer-home-content">
         <Sidebar
@@ -128,8 +131,7 @@ export default function BuyerHome() {
           {/* Recommended categories */}
           <section aria-labelledby="recommended-heading">
             <h2 id="recommended-heading" className="sr-only">
-              Recommended Categories
-            </h2>
+                          </h2>
             <Recommended handleClick={handleRecommendedClick} />
           </section>
 

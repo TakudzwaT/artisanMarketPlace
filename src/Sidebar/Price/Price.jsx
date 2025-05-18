@@ -53,6 +53,22 @@ const Price = ({ handleChange, selectedValue }) => {
           name="price"
           checked={selectedValue === "250"}
         />
+        <Input
+          handleChange={handleChange}
+          value={1000}
+          title="R200 - R1000"
+          name="price"
+          checked={selectedValue === "1000"}
+        />
+        <Input
+          handleChange={handleChange}
+          value={5000000}
+          title="R1000+"
+          name="price"
+          checked={selectedValue === "5000000"}
+        />
+        
+        
       </fieldset>
     </section>
   );

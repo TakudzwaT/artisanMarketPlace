@@ -46,6 +46,13 @@ function Category({ handleChange, selectedValue }) {
           name="category"
           checked={selectedValue === "woodwork"}
         />
+        <Input
+          handleChange={handleChange}
+          value="other"
+          title="other"
+          name="category"
+          checked={selectedValue === "other"}
+        />
       </fieldset>
     </section>
   );
