@@ -8,8 +8,8 @@ import {
   doc,
   getDoc
 } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
-import { format } from "date-fns";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { format, isWithinInterval, parseISO } from "date-fns";
 import "./styling/dboardstyle.css";
 import Navi from "./components/sellerNav";
 
@@ -18,36 +18,61 @@ const db = getFirestore();
 function SellerDashboard() {
   const [inventory, setInventory] = useState([]);
   const [sales, setSales] = useState([]);
-  const [selectedDate, setSelectedDate] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [storeInfo, setStoreInfo] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
   const [storeId, setStoreId] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   
   const auth = getAuth();
-  const currentUser = auth.currentUser;
   
   useEffect(() => {
-    // Get userId from localStorage or auth
-    const userId = localStorage.getItem('userId') || currentUser?.uid;
+    // Set up auth state listener
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in
+        setIsLoggedIn(true);
+        initializeDashboard(user.uid);
+      } else {
+        // Check if a seller ID is in localStorage as a fallback
+        const storedSellerId = localStorage.getItem('sellerId');
+        if (storedSellerId) {
+          setIsLoggedIn(true);
+          initializeDashboard(storedSellerId);
+        } else {
+          // No authentication found - redirect to login
+          setLoading(false);
+          setIsLoggedIn(false);
+          setError("Please log in to access your seller dashboard");
+        }
+      }
+    });
     
-    if (!userId) {
-      setError("User not authenticated");
+    // Clean up the listener when component unmounts
+    return () => unsubscribe();
+  }, []);
+
+  const initializeDashboard = (sellerId) => {
+    if (!sellerId) {
+      setLoading(false);
+      setError("Seller ID not found");
       return;
     }
     
-    setStoreId(userId);
+    setStoreId(sellerId);
     
     // Set initial loading state
     setLoading(true);
     
     // Fetch all data in parallel
     Promise.all([
-      fetchStoreInfo(userId),
-      fetchInventory(userId),
-      fetchSales(userId)
+      fetchStoreInfo(sellerId),
+      fetchInventory(sellerId),
+      fetchSales(sellerId)
     ])
     .catch(err => {
       console.error("Error initializing dashboard:", err);
@@ -56,7 +81,7 @@ function SellerDashboard() {
     .finally(() => {
       setLoading(false);
     });
-  }, [currentUser]);
+  };
 
   useEffect(() => {
     // Calculate statistics whenever sales data changes
@@ -95,10 +120,10 @@ function SellerDashboard() {
     }
   };
 
-  const fetchStoreInfo = async (userId) => {
+  const fetchStoreInfo = async (sellerId) => {
     try {
       // From the images, I can see that store info is stored in the stores collection
-      const storeRef = doc(db, "stores", userId);
+      const storeRef = doc(db, "stores", sellerId);
       const storeDoc = await getDoc(storeRef);
       
       if (!storeDoc.exists()) {
@@ -115,10 +140,10 @@ function SellerDashboard() {
     }
   };
 
-  const fetchInventory = async (userId) => {
+  const fetchInventory = async (sellerId) => {
     try {
       // From the images, I can see products are stored as a subcollection of stores
-      const productsRef = collection(db, "stores", userId, "products");
+      const productsRef = collection(db, "stores", sellerId, "products");
       const snapshot = await getDocs(productsRef);
       
       if (snapshot.empty) {
@@ -143,7 +168,7 @@ function SellerDashboard() {
     }
   };
 
-  const fetchSales = async (userId, date = selectedDate) => {
+  const fetchSales = async (sellerId, dateRange = { start: startDate, end: endDate }) => {
     try {
       // Based on the images, orders are stored in a top-level collection
       // Important: From Image 3, we can see that storeId is in each item, not at the order level
@@ -171,29 +196,47 @@ function SellerDashboard() {
         if (!order.items) return false;
         
         // Check if any item in this order belongs to the current store
-        return Object.values(order.items).some(item => item.storeId === userId);
+        return Object.values(order.items).some(item => item.storeId === sellerId);
       });
       
-      // Filter by date if selected
-      if (date) {
+      // Filter by date range if selected
+      if (dateRange.start || dateRange.end) {
         storeOrders = storeOrders.filter(order => {
           let orderDate;
           
           // Handle different date formats from Firestore
           if (order.createdAt?.toDate) {
-            orderDate = format(order.createdAt.toDate(), "yyyy-MM-dd");
+            orderDate = order.createdAt.toDate();
           } else if (order.createdAt instanceof Date) {
-            orderDate = format(order.createdAt, "yyyy-MM-dd");
+            orderDate = order.createdAt;
           } else if (order.purchasedAt?.toDate) {
             // From image 2, it seems purchasedAt is used instead of createdAt
-            orderDate = format(order.purchasedAt.toDate(), "yyyy-MM-dd");
+            orderDate = order.purchasedAt.toDate();
           } else if (order.purchasedAt) {
-            orderDate = format(new Date(order.purchasedAt), "yyyy-MM-dd");
+            orderDate = new Date(order.purchasedAt);
           } else {
-            orderDate = format(new Date(), "yyyy-MM-dd");
+            orderDate = new Date();
           }
           
-          return orderDate === date;
+          // Apply date range filter
+          if (dateRange.start && dateRange.end) {
+            // Filter between start and end dates
+            const start = parseISO(dateRange.start);
+            const end = parseISO(dateRange.end);
+            // Add one day to end date to include the full end date
+            end.setDate(end.getDate() + 1);
+            return isWithinInterval(orderDate, { start, end });
+          } else if (dateRange.start) {
+            // Filter for dates after start
+            return orderDate >= parseISO(dateRange.start);
+          } else if (dateRange.end) {
+            // Filter for dates before end (inclusive)
+            const end = parseISO(dateRange.end);
+            end.setDate(end.getDate() + 1); // Include the full end date
+            return orderDate < end;
+          }
+          
+          return true;
         });
       }
       
@@ -206,7 +249,7 @@ function SellerDashboard() {
           // Filter items to only include those from this store
           const storeItems = {};
           Object.entries(processedOrder.items).forEach(([key, item]) => {
-            if (item.storeId === userId) {
+            if (item.storeId === sellerId) {
               storeItems[key] = item;
             }
           });
@@ -225,24 +268,43 @@ function SellerDashboard() {
     }
   };
 
-  const handleDateChange = (e) => {
-    setSelectedDate(e.target.value);
+  const handleStartDateChange = (e) => {
+    setStartDate(e.target.value);
+  };
+
+  const handleEndDateChange = (e) => {
+    setEndDate(e.target.value);
   };
 
   const applyDateFilter = () => {
     setLoading(true);
-    fetchSales(storeId, selectedDate)
+    fetchSales(storeId, { start: startDate, end: endDate })
       .catch(err => setError(`Date filter error: ${err.message}`))
       .finally(() => setLoading(false));
   };
 
   const resetDateFilter = () => {
-    setSelectedDate("");
+    setStartDate("");
+    setEndDate("");
     setLoading(true);
     fetchSales(storeId)
       .catch(err => setError(`Reset filter error: ${err.message}`))
       .finally(() => setLoading(false));
   };
+
+  // Redirect to login if not logged in
+  if (!isLoggedIn && !loading) {
+    return (
+      <div className="artisan-dashboard login-required">
+        <h2>Seller Login Required</h2>
+        <p>Please log in to access your seller dashboard.</p>
+        <div className="action-buttons">
+          <button onClick={() => window.location.href = "/login"}>Log In</button>
+          <button onClick={() => window.location.href = "/seller-signup"}>Register as Seller</button>
+        </div>
+      </div>
+    );
+  }
 
   // Show loading spinner during initial load
   if (loading && !inventory.length && !sales.length && !storeInfo) {
@@ -265,13 +327,13 @@ function SellerDashboard() {
     );
   }
 
-  // If store info is missing after loading, show error
+  // If store info is missing after loading, show store creation prompt
   if (!loading && !storeInfo) {
     return (
       <div className="artisan-dashboard error-message">
         <h2>Store Information Not Found</h2>
         <p>Please complete your store profile before accessing the dashboard.</p>
-        <button onClick={() => window.location.href = "/profile"}>Go to Profile</button>
+        <button onClick={() => window.location.href = "/create-store"}>Create Store</button>
       </div>
     );
   }
@@ -355,6 +417,7 @@ function SellerDashboard() {
             ) : (
               <div className="empty-state">
                 <p>No products in inventory</p>
+                <button onClick={() => window.location.href = "/add-product"}>Add a Product</button>
               </div>
             )}
           </section>
@@ -363,17 +426,35 @@ function SellerDashboard() {
             <div className="section-header">
               <h2>Sales</h2>
               <div className="date-filter">
-                <label>
-                  Filter by date:
-                  <input
-                    type="date"
-                    value={selectedDate}
-                    onChange={handleDateChange}
-                  />
-                </label>
+                <div className="date-range-inputs">
+                  <label>
+                    From:
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={handleStartDateChange}
+                      max={endDate || undefined}
+                    />
+                  </label>
+                  <label>
+                    To:
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={handleEndDateChange}
+                      min={startDate || undefined}
+                    />
+                  </label>
+                </div>
                 <div className="filter-actions">
-                  <button className="apply-btn" onClick={applyDateFilter}>Apply</button>
-                  {selectedDate && (
+                  <button 
+                    className="apply-btn" 
+                    onClick={applyDateFilter}
+                    disabled={!(startDate || endDate)}
+                  >
+                    Apply
+                  </button>
+                  {(startDate || endDate) && (
                     <button className="reset-btn" onClick={resetDateFilter}>Reset</button>
                   )}
                 </div>
@@ -439,7 +520,16 @@ function SellerDashboard() {
               </div>
             ) : (
               <div className="empty-state">
-                <p>{selectedDate ? `No sales found for ${selectedDate}` : "No sales records found"}</p>
+                <p>
+                  {startDate && endDate 
+                    ? `No sales found between ${startDate} and ${endDate}` 
+                    : startDate 
+                      ? `No sales found from ${startDate} onwards`
+                      : endDate
+                        ? `No sales found until ${endDate}`
+                        : "No sales records found"
+                  }
+                </p>
               </div>
             )}
           </section>
