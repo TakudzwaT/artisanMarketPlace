@@ -17,7 +17,8 @@ function Navi() {
     }
   };
 
-  const menuItems = (
+  // Create a function that returns menu items with context-specific test IDs
+  const getMenuItems = (context) => (
     <>
       <li>
         <button onClick={handleLogout} className="nav-link logout-button">
@@ -25,22 +26,35 @@ function Navi() {
         </button>
       </li>
       <li>
-        <NavLink to="/manage" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} data-testid="mobile-manage-link">
+        <NavLink 
+          to="/manage" 
+          className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+          data-testid={`${context}-manage-link`}
+        >
           Manage Store
         </NavLink>
       </li>
       <li>
-        <NavLink to="/sellerOrders" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+        <NavLink 
+          to="/sellerOrders" 
+          className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+        >
           Orders
         </NavLink>
       </li>
       <li>
-        <NavLink to="/seller/dashboard" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+        <NavLink 
+          to="/seller/dashboard" 
+          className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+        >
           Dashboard
         </NavLink>
       </li>
       <li>
-        <NavLink to="/about" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+        <NavLink 
+          to="/about" 
+          className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}
+        >
           About Us
         </NavLink>
       </li>
@@ -50,10 +64,12 @@ function Navi() {
   return (
     <nav className="navigation">
       <h1 className="logo">Artisan Marketplace</h1>
-
+      
       {/* Desktop menu */}
-      <ul className="desktop-menu">{menuItems}</ul>
-
+      <ul className="desktop-menu">
+        {getMenuItems("desktop")}
+      </ul>
+      
       {/* Mobile menu button */}
       <button
         className="mobile-menu-button"
@@ -61,11 +77,11 @@ function Navi() {
       >
         {isMenuOpen ? "✕" : "☰"}
       </button>
-
+      
       {/* Mobile menu */}
       {isMenuOpen && (
         <ul className="mobile-menu" data-testid="mobile-menu">
-          {menuItems}
+          {getMenuItems("mobile")}
         </ul>
       )}
     </nav>

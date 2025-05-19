@@ -8,6 +8,12 @@ jest.mock('firebase/auth', () => ({
   signOut: jest.fn(() => Promise.resolve()),
 }));
 
+// Mock useNavigate
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => jest.fn(),
+}));
+
 const renderWithRouter = (ui) => {
   return render(<BrowserRouter>{ui}</BrowserRouter>);
 };
@@ -29,14 +35,18 @@ describe('Navi component', () => {
 
   it('toggles mobile menu when button is clicked', () => {
     renderWithRouter(<Navi />);
-    const button = screen.getByRole('button');
+    // Find the mobile menu button
+    const button = screen.getByRole('button', { name: '☰' });
     expect(button).toHaveTextContent('☰');
-
+    
     fireEvent.click(button);
-    expect(button).toHaveTextContent('✕');
+    expect(screen.getByRole('button', { name: '✕' })).toBeInTheDocument();
+    
+    // Now check for the mobile-specific manage link
     expect(screen.getByTestId('mobile-manage-link')).toBeInTheDocument();
-
-    fireEvent.click(button);
-    expect(button).toHaveTextContent('☰');
+    
+    // Click the close button
+    fireEvent.click(screen.getByRole('button', { name: '✕' }));
+    expect(screen.getByRole('button', { name: '☰' })).toBeInTheDocument();
   });
 });

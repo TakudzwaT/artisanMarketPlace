@@ -17,7 +17,7 @@ jest.mock('firebase/auth', () => ({
   signOut: jest.fn(() => Promise.resolve()),
 }));
 
-// Mock CartContext
+// Mock CartContext with totalQty property
 jest.mock('./CartContext', () => ({
   useCart: jest.fn(),
 }));
@@ -33,21 +33,22 @@ const renderWithRouter = (ui) => {
 
 describe('Navigation component', () => {
   beforeEach(() => {
+    // Add totalQty to the mock return value
     useCart.mockReturnValue({
       shoppingCart: [{ id: 1 }, { id: 2 }], // mock 2 items in cart
+      totalQty: 2 // Add totalQty to match component implementation
     });
   });
 
   test('renders desktop menu items including cart with badge', () => {
     renderWithRouter(<Navigation />);
-    
     expect(screen.getByText('Home')).toBeInTheDocument();
     expect(screen.getByText('Orders')).toBeInTheDocument();
     expect(screen.getByText('Logout')).toBeInTheDocument();
-
+    
     // Check for cart icon
     expect(screen.getByTestId('cart-icon')).toBeInTheDocument();
-
+    
     // Cart badge count
     expect(screen.getByText('2')).toBeInTheDocument(); // badge showing 2 items
   });
@@ -60,7 +61,7 @@ describe('Navigation component', () => {
   test('toggles mobile menu when button is clicked', () => {
     renderWithRouter(<Navigation />);
     const toggleButton = screen.getByRole('button', { name: /☰/i });
-
+    
     // Menu closed initially
     expect(screen.queryByTestId('mobile-menu')).not.toBeInTheDocument();
     
@@ -77,10 +78,9 @@ describe('Navigation component', () => {
   test('mobile menu contains correct links when open', () => {
     renderWithRouter(<Navigation />);
     const toggleButton = screen.getByRole('button', { name: /☰/i });
-
     fireEvent.click(toggleButton); // open menu
+    
     const mobileMenu = screen.getByTestId('mobile-menu');
-
     expect(mobileMenu).toContainElement(screen.getAllByText('Home')[1]);
     expect(mobileMenu).toContainElement(screen.getAllByText('Orders')[1]);
     expect(mobileMenu).toContainElement(screen.getAllByTestId('cart-icon')[1]);
@@ -91,6 +91,7 @@ describe('Navigation component', () => {
     // Test with empty cart
     useCart.mockReturnValueOnce({
       shoppingCart: [],
+      totalQty: 0 // Add totalQty to match component implementation
     });
     
     renderWithRouter(<Navigation />);
@@ -99,6 +100,7 @@ describe('Navigation component', () => {
     // Rerender with items
     useCart.mockReturnValueOnce({
       shoppingCart: [{ id: 1 }, { id: 2 }, { id: 3 }],
+      totalQty: 3 // Add totalQty to match component implementation
     });
     
     renderWithRouter(<Navigation />);
@@ -108,10 +110,8 @@ describe('Navigation component', () => {
   test('logout button calls signOut function', () => {
     const signOut = require('firebase/auth').signOut;
     renderWithRouter(<Navigation />);
-    
     const logoutButton = screen.getByRole('button', { name: /logout/i });
     fireEvent.click(logoutButton);
-    
     expect(signOut).toHaveBeenCalled();
   });
 });
