@@ -30,6 +30,8 @@ function SellerDashboard() {
   const [storeId, setStoreId] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
+  const [exportType, setExportType] = useState("pdf"); // "pdf" or "csv"
+  const [dataLoaded, setDataLoaded] = useState(false);
   
   const dashboardRef = useRef(null);
   const auth = getAuth();
@@ -38,12 +40,16 @@ function SellerDashboard() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setIsLoggedIn(true);
-        initializeDashboard(user.uid);
+        setTimeout(() => {
+          initializeDashboard(user.uid);
+        }, 0);
       } else {
         const storedSellerId = localStorage.getItem('sellerId');
         if (storedSellerId) {
           setIsLoggedIn(true);
-          initializeDashboard(storedSellerId);
+          setTimeout(() => {
+            initializeDashboard(storedSellerId);
+          }, 0);
         } else {
           setLoading(false);
           setIsLoggedIn(false);
@@ -63,7 +69,6 @@ function SellerDashboard() {
     }
     
     setStoreId(sellerId);
-    
     setLoading(true);
     
     Promise.all([
@@ -77,6 +82,12 @@ function SellerDashboard() {
     })
     .finally(() => {
       setLoading(false);
+      setDataLoaded(true);
+      
+      // Force a refresh if this is the first time loading
+      if (!dataLoaded && window.location.pathname.includes("seller-dashboard")) {
+        window.location.reload();
+      }
     });
   };
 
@@ -266,6 +277,99 @@ function SellerDashboard() {
       .finally(() => setLoading(false));
   };
 
+  const exportToCSV = () => {
+    try {
+      setExportLoading(true);
+      
+      const currentDate = format(new Date(), "yyyy-MM-dd");
+      const storeName = storeInfo?.storeName || "Store";
+      const fileName = `${storeName.replace(/\s+/g, '-').toLowerCase()}-dashboard-${currentDate}.csv`;
+      
+      // Create CSV header rows
+      let csvContent = "data:text/csv;charset=utf-8,";
+      
+      // Add store info
+      csvContent += `Store Name,${storeInfo?.storeName || "Unknown"}\r\n`;
+      csvContent += `Owner,${storeInfo?.ownerName || "Unknown"}\r\n`;
+      csvContent += `Date Generated,${format(new Date(), "yyyy-MM-dd HH:mm:ss")}\r\n\r\n`;
+      
+      // Add summary stats
+      csvContent += "DASHBOARD SUMMARY\r\n";
+      csvContent += `Total Sales,${sales.length}\r\n`;
+      csvContent += `Revenue,${totalRevenue}\r\n`;
+      csvContent += `Items Sold,${totalItems}\r\n`;
+      csvContent += `Products,${inventory.length}\r\n\r\n`;
+      
+      // Add inventory table
+      csvContent += "INVENTORY\r\n";
+      csvContent += "Product,Category,Price,Stock,Status\r\n";
+      
+      inventory.forEach(product => {
+        let status = product.status || (product.stock > 0 ? "In Stock" : "Out of Stock");
+        csvContent += `"${product.name}","${product.category}",${product.price},${product.stock},"${status}"\r\n`;
+      });
+      
+      csvContent += "\r\n";
+      
+      // Add sales table
+      csvContent += "SALES\r\n";
+      if (startDate || endDate) {
+        let dateRange = "Date Range: ";
+        if (startDate && endDate) {
+          dateRange += `${startDate} to ${endDate}`;
+        } else if (startDate) {
+          dateRange += `From ${startDate}`;
+        } else if (endDate) {
+          dateRange += `Until ${endDate}`;
+        }
+        csvContent += `${dateRange}\r\n`;
+      }
+      
+      csvContent += "Order ID,Item,Quantity,Price,Total,Date\r\n";
+      
+      sales.forEach(order => {
+        const items = order.items || {};
+        
+        Object.values(items).forEach(item => {
+          if (item.storeId !== storeId) return;
+          
+          let dateObj;
+          if (order.createdAt?.toDate) {
+            dateObj = order.createdAt.toDate();
+          } else if (order.createdAt instanceof Date) {
+            dateObj = order.createdAt;
+          } else if (order.purchasedAt?.toDate) {
+            dateObj = order.purchasedAt.toDate();
+          } else if (order.purchasedAt) {
+            dateObj = new Date(order.purchasedAt);
+          } else {
+            dateObj = new Date();
+          }
+          
+          const date = format(dateObj, "yyyy-MM-dd");
+          const itemTotal = item.total || (item.price * item.qty);
+          
+          csvContent += `"${order.id.substring(0, 8)}","${item.name}",${item.qty},${item.price},${itemTotal},"${date}"\r\n`;
+        });
+      });
+      
+      // Create download link and trigger download
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+    } catch (err) {
+      console.error("Error generating CSV:", err);
+      alert("Failed to generate CSV. Please try again.");
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
   const exportToPDF = async () => {
     if (!dashboardRef.current) return;
     
@@ -346,6 +450,14 @@ function SellerDashboard() {
       setExportLoading(false);
     }
   };
+  
+  const handleExport = () => {
+    if (exportType === "pdf") {
+      exportToPDF();
+    } else {
+      exportToCSV();
+    }
+  };
 
   if (!isLoggedIn && !loading) {
     return (
@@ -403,13 +515,23 @@ function SellerDashboard() {
             </p>
           </section>
           <section className="export-button-container">
-            <button 
-              className="export-pdf-button"
-              onClick={exportToPDF}
-              disabled={exportLoading}
-            >
-              {exportLoading ? "Generating PDF..." : "Export as PDF"}
-            </button>
+            <section className="export-options">
+              <select 
+                value={exportType} 
+                onChange={(e) => setExportType(e.target.value)}
+                className="export-select"
+              >
+                <option value="pdf">PDF</option>
+                <option value="csv">CSV</option>
+              </select>
+              <button 
+                className="export-button"
+                onClick={handleExport}
+                disabled={exportLoading}
+              >
+                {exportLoading ? `Generating ${exportType.toUpperCase()}...` : `Export as ${exportType.toUpperCase()}`}
+              </button>
+            </section>
           </section>
         </section>
         
