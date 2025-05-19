@@ -1,4 +1,5 @@
 import Navi from "./components/sellerNav"
+import React from "react";
 
 function AboutUs() {
     return (

@@ -335,11 +335,8 @@ describe('ManageStore Component', () => {
     const editButtons = screen.getAllByRole('button');
     const editButton = editButtons.find(button => button.innerHTML.includes('Edit'));
     fireEvent.click(editButton);
-
-    // Check if prompt was called
     expect(global.prompt).toHaveBeenCalledWith('Enter new stock quantity:');
     
-    // Check if updateDoc was called with correct data
     expect(firestore.updateDoc).toHaveBeenCalledWith(
       expect.anything(),
       { stock: 10, status: 'Active' }
