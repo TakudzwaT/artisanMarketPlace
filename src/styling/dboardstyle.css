@@ -340,3 +340,78 @@
       grid-template-columns: 1fr;
     }
   }
+
+  .export-button-container {
+  margin-left: auto;
+}
+
+.export-pdf-button {
+  background-color: #4a6741; /* Match your existing theme color - adjust as needed */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.export-pdf-button:hover {
+  background-color: #3a5331; /* Darker shade for hover state */
+}
+
+.export-pdf-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Updated dashboard header to display button */
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 25px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #fff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .export-button-container {
+    margin-left: 0;
+    margin-top: 15px;
+    width: 100%;
+  }
+  
+  .export-pdf-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Add styles for the PDF generation loading state */
+.export-loading {
+  display: inline-block;
+  margin-right: 8px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #ffffff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { 
   getFirestore, 
   collection, 
@@ -10,6 +10,8 @@ import {
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { format, isWithinInterval, parseISO } from "date-fns";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import "./styling/dboardstyle.css";
 import Navi from "./components/sellerNav";
 
@@ -27,7 +29,9 @@ function SellerDashboard() {
   const [totalItems, setTotalItems] = useState(0);
   const [storeId, setStoreId] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
   
+  const dashboardRef = useRef(null);
   const auth = getAuth();
   
   useEffect(() => {
@@ -292,6 +296,100 @@ function SellerDashboard() {
       .finally(() => setLoading(false));
   };
 
+  // Function to export dashboard as PDF
+  const exportToPDF = async () => {
+    if (!dashboardRef.current) return;
+    
+    setExportLoading(true);
+    
+    try {
+      // Get current date for filename
+      const currentDate = format(new Date(), "yyyy-MM-dd");
+      const storeName = storeInfo?.storeName || "Store";
+      const fileName = `${storeName.replace(/\s+/g, '-').toLowerCase()}-dashboard-${currentDate}.pdf`;
+      
+      const dashboard = dashboardRef.current;
+      
+      // Calculate PDF dimensions (A4 page)
+      const pdfWidth = 210; // A4 width in mm
+      const pdfHeight = 297; // A4 height in mm
+      const pdfRatio = pdfWidth / pdfHeight;
+      
+      // Create new PDF with A4 dimensions
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      // Add a title to the PDF
+      pdf.setFontSize(18);
+      pdf.text(`${storeInfo?.storeName || "Store"} Dashboard`, 15, 15);
+      
+      // Add date range if filters are applied
+      if (startDate || endDate) {
+        pdf.setFontSize(12);
+        let dateText = "Date Range: ";
+        if (startDate && endDate) {
+          dateText += `${startDate} to ${endDate}`;
+        } else if (startDate) {
+          dateText += `From ${startDate}`;
+        } else if (endDate) {
+          dateText += `Until ${endDate}`;
+        }
+        pdf.text(dateText, 15, 23);
+      }
+      
+      // Add generation date
+      pdf.setFontSize(10);
+      pdf.text(`Generated on: ${format(new Date(), "yyyy-MM-dd HH:mm:ss")}`, 15, 30);
+      
+      // Capture the dashboard content
+      const canvas = await html2canvas(dashboard, {
+        scale: 2, // Higher scale for better quality
+        useCORS: true,
+        logging: false,
+        allowTaint: true,
+        backgroundColor: "#ffffff"
+      });
+      
+      // Calculate dimensions to fit on PDF
+      const imgWidth = pdfWidth - 30; // 15mm margin on each side
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      
+      // Add the captured content to the PDF
+      const imgData = canvas.toDataURL('image/png');
+      pdf.addImage(imgData, 'PNG', 15, 35, imgWidth, imgHeight);
+      
+      // If content doesn't fit on one page, create additional pages
+      if (imgHeight > pdfHeight - 50) { // 50mm for the header space
+        let heightLeft = imgHeight;
+        let position = 35; // Starting position after the header
+        let page = 1;
+        
+        heightLeft -= (pdfHeight - 35);
+        
+        while (heightLeft > 0) {
+          pdf.addPage();
+          page++;
+          
+          // Add page number
+          pdf.setFontSize(8);
+          pdf.text(`Page ${page}`, pdfWidth - 25, pdfHeight - 10);
+          
+          position = -pdfHeight + 35 * page;
+          pdf.addImage(imgData, 'PNG', 15, position, imgWidth, imgHeight);
+          
+          heightLeft -= pdfHeight;
+        }
+      }
+      
+      // Save the PDF
+      pdf.save(fileName);
+    } catch (err) {
+      console.error("Error generating PDF:", err);
+      alert("Failed to generate PDF. Please try again.");
+    } finally {
+      setExportLoading(false);
+    }
+  };
+
   // Redirect to login if not logged in
   if (!isLoggedIn && !loading) {
     return (
@@ -341,7 +439,7 @@ function SellerDashboard() {
   return (
     <>
       <Navi />
-      <div className="artisan-dashboard">
+      <div className="artisan-dashboard" ref={dashboardRef}>
         <div className="dashboard-header">
           <div className="store-info">
             <h1>{storeInfo.storeName}</h1>
@@ -350,6 +448,15 @@ function SellerDashboard() {
               {storeInfo.paymentMethod} • 
               Owner: {storeInfo.ownerName}
             </p>
+          </div>
+          <div className="export-button-container">
+            <button 
+              className="export-pdf-button"
+              onClick={exportToPDF}
+              disabled={exportLoading}
+            >
+              {exportLoading ? "Generating PDF..." : "Export as PDF"}
+            </button>
           </div>
         </div>
         
