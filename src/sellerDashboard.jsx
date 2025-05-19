@@ -31,73 +31,72 @@ function SellerDashboard() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
   const [exportType, setExportType] = useState("pdf"); // "pdf" or "csv"
-  const [dataLoaded, setDataLoaded] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
   
   const dashboardRef = useRef(null);
   const auth = getAuth();
   
+  // Step 1: Handle authentication and initialization
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setIsLoggedIn(true);
-        setTimeout(() => {
-          initializeDashboard(user.uid);
-        }, 0);
+        setStoreId(user.uid);
+        loadDashboardData(user.uid);
       } else {
         const storedSellerId = localStorage.getItem('sellerId');
         if (storedSellerId) {
           setIsLoggedIn(true);
-          setTimeout(() => {
-            initializeDashboard(storedSellerId);
-          }, 0);
+          setStoreId(storedSellerId);
+          loadDashboardData(storedSellerId);
         } else {
           setLoading(false);
           setIsLoggedIn(false);
           setError("Please log in to access your seller dashboard");
         }
       }
+      setAuthChecked(true);
     });
     
     return () => unsubscribe();
   }, []);
-
-  const initializeDashboard = (sellerId) => {
+  
+  // Step 2: Separate function to load all dashboard data
+  const loadDashboardData = async (sellerId) => {
     if (!sellerId) {
       setLoading(false);
       setError("Seller ID not found");
       return;
     }
     
-    setStoreId(sellerId);
     setLoading(true);
     
-    Promise.all([
-      fetchStoreInfo(sellerId),
-      fetchInventory(sellerId),
-      fetchSales(sellerId)
-    ])
-    .catch(err => {
-      console.error("Error initializing dashboard:", err);
-      setError("Failed to load dashboard data");
-    })
-    .finally(() => {
-      setLoading(false);
-      setDataLoaded(true);
+    try {
+      // Load store info first
+      const storeData = await fetchStoreInfo(sellerId);
       
-      // Force a refresh if this is the first time loading
-      if (!dataLoaded && window.location.pathname.includes("seller-dashboard")) {
-        window.location.reload();
-      }
-    });
+      // Then load inventory and sales in parallel
+      const [inventoryData, salesData] = await Promise.all([
+        fetchInventory(sellerId),
+        fetchSales(sellerId)
+      ]);
+      
+      // Calculate statistics based on fresh data
+      calculateStatistics(salesData);
+    } catch (err) {
+      console.error("Error loading dashboard data:", err);
+      setError("Failed to load dashboard data");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => {
-    calculateStatistics();
-  }, [sales]);
-
-  const calculateStatistics = () => {
-    if (sales.length > 0) {
-      const revenue = sales.reduce((sum, order) => {
+  // Step 3: Update the statistics calculation to accept optional parameter
+  const calculateStatistics = (salesData = null) => {
+    const data = salesData || sales;
+    
+    if (data.length > 0) {
+      const revenue = data.reduce((sum, order) => {
         if (!order.items) return sum;
         
         const orderTotal = Object.values(order.items).reduce((itemSum, item) => {
@@ -108,7 +107,7 @@ function SellerDashboard() {
       }, 0);
       setTotalRevenue(revenue);
       
-      const items = sales.reduce((sum, order) => {
+      const items = data.reduce((sum, order) => {
         if (!order.items) return sum;
         
         const orderItems = Object.values(order.items).reduce((itemSum, item) => {
@@ -123,6 +122,11 @@ function SellerDashboard() {
       setTotalItems(0);
     }
   };
+
+  // Recalculate statistics when sales data changes
+  useEffect(() => {
+    calculateStatistics();
+  }, [sales]);
 
   const fetchStoreInfo = async (sellerId) => {
     try {
@@ -459,7 +463,18 @@ function SellerDashboard() {
     }
   };
 
-  if (!isLoggedIn && !loading) {
+  // Show loading state during auth check and initial data load
+  if (!authChecked || (loading && !inventory.length && !sales.length && !storeInfo)) {
+    return (
+      <section className="artisan-dashboard loading-spinner">
+        <section className="spinner"></section>
+        <p>Loading your dashboard...</p>
+      </section>
+    );
+  }
+
+  // Handle not logged in state
+  if (!isLoggedIn) {
     return (
       <section className="artisan-dashboard login-required">
         <h2>Seller Login Required</h2>
@@ -472,15 +487,7 @@ function SellerDashboard() {
     );
   }
 
-  if (loading && !inventory.length && !sales.length && !storeInfo) {
-    return (
-      <section className="artisan-dashboard loading-spinner">
-        <section className="spinner"></section>
-        <p>Loading your dashboard...</p>
-      </section>
-    );
-  }
-
+  // Handle error state
   if (error) {
     return (
       <section className="artisan-dashboard error-message">
@@ -491,7 +498,8 @@ function SellerDashboard() {
     );
   }
 
-  if (!loading && !storeInfo) {
+  // Handle no store info state
+  if (!storeInfo) {
     return (
       <section className="artisan-dashboard error-message">
         <h2>Store Information Not Found</h2>

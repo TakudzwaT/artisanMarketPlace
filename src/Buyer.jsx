@@ -182,8 +182,10 @@ function BuyerTrack() {
   }, [userId]);
 
   return (
+    <>
+    <Navigation/>
     <main className="orders-page">
-      <Navigation />
+      
       <section className="orders-container">
         <header className="orders-header">
           <h1 className="orders-title" id="orders-heading">
@@ -234,6 +236,7 @@ function BuyerTrack() {
         )}
       </section>
     </main>
+    </>
   );
 }
 

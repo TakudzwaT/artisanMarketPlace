@@ -198,8 +198,9 @@ function SellerOrders() {
   };
 
   return (
+    <><Navi />
     <div className="seller-orders-container">
-      <Navi />
+      
       <div className="orders-header">
         <h1>Manage Orders</h1>
         <p>View and update the status of your store's orders</p>
@@ -218,6 +219,7 @@ function SellerOrders() {
         <section className="orders-section">{renderOrderCards()}</section>
       )}
     </div>
+    </>
   );
 }
 
