@@ -325,7 +325,7 @@ export default function ManageStore() {
       <Navi />
       <main style={styles.container}>
         <header style={styles.header}>
-          <h1 style={styles.title}>Manage {store.name}</h1>
+          <h1 style={styles.title}>Manage {store.storeName}</h1>
           <nav style={styles.toolbar}>
             <input
               type="search"

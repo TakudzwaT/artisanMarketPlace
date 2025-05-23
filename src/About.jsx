@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Navi from "./components/sellerNav";
 
 const teamMembers = [
@@ -10,8 +10,6 @@ const teamMembers = [
 ];
 
 function AboutUs() {
-  const [selected, setSelected] = useState(null);
-
   return (
     <>
       <Navi />
@@ -50,7 +48,8 @@ function AboutUs() {
           transition: transform 0.8s;
           transform-style: preserve-3d;
         }
-        .card.flipped .card-inner {
+        /* Flip on hover */
+        .card:hover .card-inner {
           transform: rotateY(180deg);
         }
         .card-face {
@@ -96,6 +95,7 @@ function AboutUs() {
           color: #5a5a5a;
         }
       `}</style>
+
       <div className="about-us-container">
         <h1 className="AboutUsH">Welcome to Local Artisan!</h1>
         <p className="intro-text">
@@ -104,11 +104,7 @@ function AboutUs() {
         <h2 className="AboutUsH">Meet the Dream Team ✨</h2>
         <div className="team-cards">
           {teamMembers.map(member => (
-            <div
-              key={member.name}
-              className={`card ${selected === member.name ? 'flipped' : ''}`}
-              onClick={() => setSelected(selected === member.name ? null : member.name)}
-            >
+            <div key={member.name} className="card">
               <div className="card-inner">
                 <div className="card-face card-front">
                   <h3>{member.name}</h3>
@@ -117,9 +113,11 @@ function AboutUs() {
                 <div className="card-face card-back">
                   <h3>About</h3>
                   <p>{member.description}</p>
-                  {selected === member.name && (
-                    <img src={member.image} alt={member.name} style={{ width: '80%', borderRadius: '8px', marginTop: '0.5rem' }} />
-                  )}
+                  <img
+                    src={member.image}
+                    alt={member.name}
+                    style={{ width: '80%', borderRadius: '8px', marginTop: '0.5rem' }}
+                  />
                 </div>
               </div>
             </div>
