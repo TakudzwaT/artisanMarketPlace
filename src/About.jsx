@@ -52,22 +52,7 @@ function AboutUs() {
         .card:hover .card-inner {
           transform: rotateY(180deg);
         }
-        .card-face {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          backface-visibility: hidden;
-          border-radius: 12px;
-          box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          padding: 1rem;
-          box-sizing: border-box;
-        }
+
         .card-front {
           background-color: #f9f9f9;
         }
