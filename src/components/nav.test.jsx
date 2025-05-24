@@ -15,6 +15,11 @@ jest.mock('react-router-dom', () => ({
 jest.mock('firebase/auth', () => ({
   getAuth: jest.fn(() => ({})),
   signOut: jest.fn(() => Promise.resolve()),
+  onAuthStateChanged: jest.fn((auth, callback) => {
+    // Immediately call callback with a dummy user or null
+    callback({ uid: '123' }); // You can use `null` to simulate no user
+    return () => {}; // Return an unsubscribe function
+  }),
 }));
 
 // Mock CartContext with totalQty property

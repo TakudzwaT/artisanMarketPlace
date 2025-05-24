@@ -4,7 +4,7 @@ import './OrderCard.css';
 const OrderCard = ({ description, price, date, OrderID, ProductID, Img, status, shopName }) => {
   return (
     <article className="order-card">
-      <div className="order-image-container">
+      <section className="order-image-container">
         <img 
           src={Img} 
           alt={description}
@@ -13,14 +13,14 @@ const OrderCard = ({ description, price, date, OrderID, ProductID, Img, status, 
         <span className={`order-status status-${status.toLowerCase()}`}>
           {status}
         </span>
-      </div>
+      </section>
       
-      <div className="order-content">
+      <section className="order-content">
         <span className="shop-name">{shopName}</span>
         
         <h3 className="product-name">{description}</h3>
         
-        <div className="order-details">
+        <section className="order-details">
           <span className="product-price">
             R{parseFloat(price).toFixed(2)}
           </span>
@@ -28,12 +28,12 @@ const OrderCard = ({ description, price, date, OrderID, ProductID, Img, status, 
           <time className="order-date" dateTime={date}>
             {date}
           </time>
-        </div>
+        </section>
         
-        <div className="order-id">
+        <section className="order-id">
           Order #{OrderID?.substring(0, 8)}
-        </div>
-      </div>
+        </section>
+      </section>
     </article>
   );
 };

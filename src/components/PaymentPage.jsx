@@ -147,13 +147,13 @@ export default function PaymentPage() {
   };
 
   return (
-    <div className="payment-page-container">
-      <div className="payment-card">
+    <main className="payment-page-container">
+      <section className="payment-card">
         <h2>Payment</h2>
         <p className="info">Order Total: R{totalAmount.toFixed(2)}</p>
         <p className="info">Your Credits: {credits}</p>
 
-        <div className="load-credits">
+        <section className="load-credits">
           <input
             type="number"
             min="1"
@@ -162,14 +162,14 @@ export default function PaymentPage() {
             onChange={e => setAmountToAdd(e.target.value)}
           />
           <button onClick={handleAddCredits} disabled={loading}>Load Credits</button>
-        </div>
+        </section>
 
         {errorMsg && <p className="error-msg">{errorMsg}</p>}
         {successMsg && <p className="success-msg">{successMsg}</p>}
 
         <button className="pay-btn" onClick={handlePay} disabled={loading}>Pay with Credits</button>
         <Link to="/cart" className="back-link">Back to Cart</Link>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

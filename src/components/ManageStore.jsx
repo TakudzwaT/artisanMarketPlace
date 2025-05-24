@@ -5,11 +5,12 @@ import { db, auth } from '../firebase';
 import { CircularProgress, IconButton } from '@mui/material';
 import { Add, Delete, Edit, Search, Cancel, CheckCircle, AttachMoney } from '@mui/icons-material';
 import Navi from "./sellerNav";
+import './ManageStore.css';
 
 export default function ManageStore() {
   const navigate = useNavigate();
   const [storeId, setStoreId] = useState(null);
-  const [store, setStore] = useState({ name: 'Loading...' });
+  const [store, setStore] = useState({ storeName: 'Loading...' });
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -34,7 +35,7 @@ export default function ManageStore() {
         } else {
           const userDoc = await getDoc(doc(db, 'users', uid));
           if (userDoc.exists() && userDoc.data().seller) {
-            setStore({ name: user.displayName + "'s Store" });
+            setStore({ storeName: user.displayName + "'s Store" });
           } else {
             setError('No store found for this account');
           }
@@ -141,166 +142,14 @@ export default function ManageStore() {
     p.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const styles = {
-    container: {
-      padding: '2rem',
-      backgroundColor: '#f8f5f2',
-      minHeight: '100vh',
-    },
-    header: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '1rem',
-      marginBottom: '2rem',
-      '@media (min-width: 768px)': {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }
-    },
-    title: {
-      color: '#4B3621',
-      fontSize: '1.8rem',
-      margin: 0,
-    },
-    toolbar: {
-      display: 'flex',
-      gap: '1rem',
-      flexWrap: 'wrap',
-    },
-    searchInput: {
-      flex: 1,
-      padding: '0.8rem 1rem',
-      border: '1px solid #e0d7d1',
-      borderRadius: '8px',
-      fontSize: '1rem',
-      minWidth: '250px',
-    },
-    button: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      padding: '0.8rem 1.5rem',
-      borderRadius: '8px',
-      border: 'none',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-    },
-    primaryButton: {
-      backgroundColor: '#A9744F',
-      color: 'white',
-      ':hover': { backgroundColor: '#8c5d3d' }
-    },
-    dangerButton: {
-      backgroundColor: '#dc3545',
-      color: 'white',
-      ':hover': { backgroundColor: '#bb2d3b' }
-    },
-    table: {
-      width: '100%',
-      borderCollapse: 'collapse',
-      backgroundColor: 'white',
-      borderRadius: '12px',
-      overflow: 'hidden',
-      boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-    },
-    tableHeader: {
-      backgroundColor: '#DBA159',
-      color: 'white',
-      padding: '1rem',
-      textAlign: 'left',
-    },
-    tableRow: {
-      borderBottom: '1px solid #e0d7d1',
-      ':hover': { backgroundColor: '#fffaf5' }
-    },
-    tableCell: {
-      padding: '1rem',
-      color: '#6D4C41',
-    },
-    productImage: {
-      width: '60px',
-      height: '60px',
-      borderRadius: '8px',
-      objectFit: 'cover',
-    },
-    status: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      fontWeight: '500',
-    },
-    activeStatus: {
-      color: '#28a745',
-    },
-    outOfStockStatus: {
-      color: '#dc3545',
-    },
-    modalOverlay: {
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-    },
-    modalContent: {
-      backgroundColor: 'white',
-      padding: '2rem',
-      borderRadius: '12px',
-      maxWidth: '500px',
-      width: '90%',
-    },
-    modalList: {
-      listStyle: 'none',
-      padding: 0,
-      margin: '1.5rem 0',
-      maxHeight: '400px',
-      overflowY: 'auto',
-    },
-    modalListItem: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-     	padding: '1rem',
-     	borderBottom: '1px solid #eee',
-     	cursor: 'pointer',
-      ':hover': { backgroundColor: '#f8f5f2' }
-    },
-    modalActions: {
-      display: 'flex',
-      gap: '1rem',
-      justifyContent: 'flex-end',
-      marginTop: '1.5rem',
-    },
-    loadingContainer: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '50vh',
-    },
-    errorContainer: {
-      textAlign: 'center',
-      padding: '4rem',
-    },
-    errorMessage: {
-      color: '#dc3545',
-      marginBottom: '1.5rem',
-    }
-  };
-
   if (error) {
     return (
       <>
         <Navi />
-        <main style={styles.container}>
-          <section style={styles.errorContainer}>
-            <h2 style={styles.errorMessage}>{error}</h2>
-            <button style={{ ...styles.button, ...styles.primaryButton }} onClick={() => navigate('/login')}>
+        <main className="container">
+          <section className="error-container">
+            <h2 className="error-message">{error}</h2>
+            <button className="button primary" onClick={() => navigate('/login')}>
               Back to Login
             </button>
           </section>
@@ -313,7 +162,7 @@ export default function ManageStore() {
     return (
       <>
         <Navi />
-        <main style={styles.loadingContainer}>
+        <main className="loading-container">
           <CircularProgress size={60} style={{ color: '#6D4C41' }} />
         </main>
       </>
@@ -323,91 +172,173 @@ export default function ManageStore() {
   return (
     <>
       <Navi />
-      <main style={styles.container}>
-        <header style={styles.header}>
-          <h1 style={styles.title}>Manage {store.storeName}</h1>
-          <nav style={styles.toolbar}>
-            <input
-              type="search"
-              placeholder="Search products..."
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              style={styles.searchInput}
-            />
-            <button style={{ ...styles.button, ...styles.primaryButton }} onClick={() => navigate('/add-product')}>
-              <Add /> New Product
+      <main className="container">
+        <header className="header">
+          <h1 className="title">Manage {store.storeName}</h1>
+          <nav className="toolbar" role="toolbar" aria-label="Store management actions">
+            <fieldset className="search-container">
+              <label htmlFor="product-search" className="sr-only">Search products</label>
+              <input
+                id="product-search"
+                type="search"
+                className="search-input"
+                placeholder="Search products..."
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                aria-label="Search products by name or category"
+              />
+            </fieldset>
+            <button 
+              className="button primary" 
+              onClick={() => navigate('/add-product')}
+              aria-label="Add new product"
+            >
+              <Add aria-hidden="true" /> New Product
             </button>
-            <button style={{ ...styles.button, ...styles.dangerButton }} onClick={openDelete} disabled={products.length === 0}>
-              <Delete /> Delete
+            <button
+              className="button danger"
+              onClick={openDelete}
+              disabled={products.length === 0}
+              aria-label="Delete selected products"
+            >
+              <Delete aria-hidden="true" /> Delete
             </button>
           </nav>
         </header>
 
-        <table style={styles.table}>
-          <thead>
-            <tr>
-              <th style={styles.tableHeader}>Image</th>
-              <th style={styles.tableHeader}>Product</th>
-              <th style={styles.tableHeader}>Category</th>
-              <th style={styles.tableHeader}>Price</th>
-              <th style={styles.tableHeader}>Stock</th>
-              <th style={styles.tableHeader}>Status</th>
-              <th style={styles.tableHeader}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredProducts.map(product => (
-              <tr key={product.id} style={styles.tableRow}>
-                <td style={styles.tableCell}>
-                  <img
-                    src={product.imageUrl || '/placeholder-image.png'}
-                    alt={product.name}
-                    style={styles.productImage}
-                    onError={e => { e.target.onerror = null; e.target.src = '/placeholder-image.png'; }}
-                  />
-                </td>
-                <td style={styles.tableCell}>{product.name}</td>
-                <td style={styles.tableCell}>{product.category}</td>
-                <td style={styles.tableCell}>R{product.price}</td>
-                <td style={styles.tableCell}>{product.stock}</td>
-                <td style={styles.tableCell}>
-                  {product.status === 'Active' ? (
-                    <strong style={styles.activeStatus}><CheckCircle /> Active</strong>
-                  ) : (
-                    <strong style={styles.outOfStockStatus}><Cancel /> Out of Stock</strong>
-                  )}
-                </td>
-                <td style={styles.tableCell}>
-                  <IconButton onClick={() => updateStock(product.id)} title="Update Stock" style={{ color: '#A9744F' }}><Edit /></IconButton>
-                  <IconButton onClick={() => updatePrice(product.id)} title="Update Price" style={{ color: '#A9744F' }}><AttachMoney /></IconButton>
-                </td>
+        <section className="products-section" aria-label="Products list">
+          <table className="table" role="table" aria-label="Products information">
+            <thead>
+              <tr>
+                <th className="table-header" scope="col">Image</th>
+                <th className="table-header" scope="col">Product</th>
+                <th className="table-header" scope="col">Category</th>
+                <th className="table-header" scope="col">Price</th>
+                <th className="table-header" scope="col">Stock</th>
+                <th className="table-header" scope="col">Status</th>
+                <th className="table-header" scope="col">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredProducts.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="table-cell no-products">
+                    {products.length === 0 ? 'No products found' : 'No products match your search'}
+                  </td>
+                </tr>
+              ) : (
+                filteredProducts.map(product => (
+                  <tr key={product.id} className="table-row">
+                    <td className="table-cell">
+                      <img
+                        src={product.imageUrl || '/placeholder-image.png'}
+                        alt={`${product.name} product image`}
+                        className="product-image"
+                        onError={e => {
+                          e.target.onerror = null;
+                          e.target.src = '/placeholder-image.png';
+                        }}
+                      />
+                    </td>
+                    <td className="table-cell">{product.name}</td>
+                    <td className="table-cell">{product.category}</td>
+                    <td className="table-cell">R{product.price}</td>
+                    <td className="table-cell">{product.stock}</td>
+                    <td className="table-cell">
+                      {product.status === 'Active' ? (
+                        <strong className="status active" aria-label="Product is active">
+                          <CheckCircle aria-hidden="true" /> Active
+                        </strong>
+                      ) : (
+                        <strong className="status out-of-stock" aria-label="Product is out of stock">
+                          <Cancel aria-hidden="true" /> Out of Stock
+                        </strong>
+                      )}
+                    </td>
+                    <td className="table-cell">
+                      <menu className="action-buttons" role="group" aria-label={`Actions for ${product.name}`}>
+                        <li>
+                          <IconButton
+                            onClick={() => updateStock(product.id)}
+                            title="Update Stock"
+                            aria-label={`Update stock for ${product.name}`}
+                            style={{ color: '#A9744F' }}
+                          >
+                            <Edit />
+                          </IconButton>
+                        </li>
+                        <li>
+                          <IconButton
+                            onClick={() => updatePrice(product.id)}
+                            title="Update Price"
+                            aria-label={`Update price for ${product.name}`}
+                            style={{ color: '#A9744F' }}
+                          >
+                            <AttachMoney />
+                          </IconButton>
+                        </li>
+                      </menu>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </section>
 
         {showModal && (
-          <aside style={styles.modalOverlay}>
-            <section style={styles.modalContent}>
-              <h2>Delete Products</h2>
-              <ul style={styles.modalList}>
-                {products.map(product => (
-                  <li key={product.id} style={styles.modalListItem} onClick={() => toggleDeleteId(product.id)}>
-                    <input type="checkbox" checked={toDeleteIds.includes(product.id)} onChange={() => toggleDeleteId(product.id)} />
-                    <img src={product.imageUrl || '/placeholder-image.png'} alt={product.name} style={{ ...styles.productImage, width: '40px', height: '40px' }} />
-                    <article>
-                      <p>{product.name}</p>
-                      <small style={{ color: '#6D4C41' }}>R{product.price} • {product.stock} in stock</small>
-                    </article>
-                  </li>
-                ))}
-              </ul>
-              <footer style={styles.modalActions}>
-                <button style={{ ...styles.button, ...styles.primaryButton }} onClick={closeDelete}>Cancel</button>
-                <button style={{ ...styles.button, ...styles.dangerButton }} onClick={confirmDelete} disabled={!toDeleteIds.length}>Confirm Delete</button>
+          <section className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+            <section className="modal-content">
+              <header>
+                <h2 id="delete-modal-title">Delete Products</h2>
+              </header>
+              <section className="modal-body">
+                <fieldset>
+                  <legend className="sr-only">Select products to delete</legend>
+                  <ul className="modal-list" role="list">
+                    {products.map(product => (
+                      <li
+                        key={product.id}
+                        className="modal-list-item"
+                        onClick={() => toggleDeleteId(product.id)}
+                      >
+                        <label className="product-checkbox-label">
+                          <input
+                            type="checkbox"
+                            checked={toDeleteIds.includes(product.id)}
+                            onChange={() => toggleDeleteId(product.id)}
+                            aria-describedby={`product-${product.id}-details`}
+                          />
+                          <img
+                            src={product.imageUrl || '/placeholder-image.png'}
+                            alt={`${product.name} product image`}
+                            className="product-image"
+                            style={{ width: '40px', height: '40px' }}
+                          />
+                          <section id={`product-${product.id}-details`}>
+                            <p>{product.name}</p>
+                            <small style={{ color: '#6D4C41' }}>
+                              ${product.price} • {product.stock} in stock
+                            </small>
+                          </section>
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                </fieldset>
+              </section>
+              <footer className="modal-actions">
+                <button className="button primary" onClick={closeDelete}>Cancel</button>
+                <button
+                  className="button danger"
+                  onClick={confirmDelete}
+                  disabled={!toDeleteIds.length}
+                >
+                  Confirm Delete ({toDeleteIds.length})
+                </button>
               </footer>
             </section>
-          </aside>
+          </section>
         )}
       </main>
     </>
