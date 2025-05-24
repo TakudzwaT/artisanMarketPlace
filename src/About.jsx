@@ -113,11 +113,6 @@ function AboutUs() {
                 <div className="card-face card-back">
                   <h3>About</h3>
                   <p>{member.description}</p>
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    style={{ width: '80%', borderRadius: '8px', marginTop: '0.5rem' }}
-                  />
                 </div>
               </div>
             </div>
