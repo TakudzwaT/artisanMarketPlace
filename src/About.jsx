@@ -2,11 +2,11 @@ import React from 'react';
 import Navi from "./components/sellerNav";
 
 const teamMembers = [
-  { name: 'Matimu Khosa', title: 'The Code Whisperer 🧙‍♂️', description: 'Rumor has it he speaks fluent JavaScript in his sleep!', image: '/images/matimu.jpg' },
-  { name: 'Muhluri Myambo', title: 'UX Maestro 🎨', description: 'Has a sixth sense for colors that just *work*.', image: '/images/muhluri.jpg' },
-  { name: 'Takudzwa Mhizha', title: 'Backend Ninja 🥷', description: 'Fast, efficient, and rarely seen—just like good API calls.', image: '/images/takudzwa.jpg' },
-  { name: 'Steven Mabasa', title: 'Debugging Legend 🛠️', description: "If there's a bug, Steven will find it—and probably name it too.", image: '/images/steven.jpg' },
-  { name: 'Lazola Simane', title: 'Creative Spark ⚡', description: 'Every great idea starts with Lazola saying “What if we just...”', image: '/images/lazola.jpg' }
+  { name: 'Matimu Khosa', title: 'The Code Whisperer 🧙‍♂️', description: 'Rumor has it he speaks fluent JavaScript in his sleep!'},
+  { name: 'Muhluri Myambo', title: 'UX Maestro 🎨', description: 'Has a sixth sense for colors that just *work*.'},
+  { name: 'Takudzwa Mhizha', title: 'Backend Ninja 🥷', description: 'Fast, efficient, and rarely seen—just like good API calls.'},
+  { name: 'Steven Mabasa', title: 'Debugging Legend 🛠️', description: "If there's a bug, Steven will find it—and probably name it too."},
+  { name: 'Lazola Simane', title: 'Creative Spark ⚡', description: 'Every great idea starts with Lazola saying “What if we just...”'}
 ];
 
 function AboutUs() {
