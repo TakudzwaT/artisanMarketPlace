@@ -1,26 +1,40 @@
-import React, { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { getAuth, signOut } from "firebase/auth";
+import React, { useState, useEffect } from "react";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { useCart } from "./CartContext";
 import { BsCart } from "react-icons/bs";
 import "./Navigation.css";
 
 function Navigation() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { totalQty } = useCart();        // ← grab totalQty
+  const { totalQty } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
   const auth = getAuth();
+
+  // Redirect to landing if no user is authenticated
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      // If user is signed out and trying to access protected routes, redirect
+      const protectedPaths = ['/buyer', '/BuyerOrders', '/cart'];
+      if (!user && protectedPaths.includes(location.pathname)) {
+        navigate('/', { replace: true });
+      }
+    });
+    return unsubscribe;
+  }, [auth, navigate, location.pathname]);
 
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      navigate("/login"); 
+      // Replace history so "back" can't return to protected pages
+      navigate('/', { replace: true });
     } catch (err) {
       console.error("Logout failed:", err);
     }
   };
 
-  const cartBadge = totalQty > 0 && (        // ← use totalQty
+  const cartBadge = totalQty > 0 && (
     <span className="cart-badge-nav">{totalQty}</span>
   );
 

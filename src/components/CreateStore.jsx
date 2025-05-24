@@ -11,7 +11,7 @@ export default function CreateStore() {
     bio: '',
     payment: 'card',
     delivery: [],
-    category: 'Jewelery' // Default value
+    category: 'N/A' // Default value
   });
 
   const handleChange = (e) => {
@@ -238,28 +238,10 @@ export default function CreateStore() {
               placeholder="Tell customers about your craft and what makes your products special..."
             />
           </label>
-  
-          <label style={styles.label}>
-            Category
-            <select
-              name="category"
-              value={form.category}
-              onChange={handleChange}
-              required
-              style={styles.select}
-              onFocus={(e) => e.target.style.boxShadow = styles.hoverInput.boxShadow}
-              onBlur={(e) => e.target.style.boxShadow = 'none'}
-            >
-              <option value="Jewelery">Jewelery</option>
-              <option value="Textile">Textile</option>
-              <option value="Woodwork">Woodwork</option>
-              <option value="Ceramics">Ceramics</option>
-            </select>
-          </label>
         </section>
   
         <section style={styles.section}>
-          <h2 style={styles.sectionTitle}>Payment & Delivery</h2>
+          <h2 style={styles.sectionTitle}>Preferred Payment Method</h2>
   
           <label style={styles.label}>
             Payment Method
@@ -276,20 +258,7 @@ export default function CreateStore() {
               <option value="cash&card">Cash & Card</option>
             </select>
           </label>
-  
-          <p style={styles.label}>Delivery Options</p>
-  
-          <label style={styles.checkboxLabel}>
-            <input
-              type="checkbox"
-              name="delivery"
-              value="pickup"
-              checked={form.delivery.includes('pickup')}
-              onChange={handleChange}
-              style={styles.checkbox}
-            />
-            Pick-up (Customers can collect from your location)
-          </label>
+
         </section>
   
         <button 
