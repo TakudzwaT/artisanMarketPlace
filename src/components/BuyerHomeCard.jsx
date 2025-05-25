@@ -38,7 +38,7 @@ const BuyerHomeCard = ({ product = {} }) => {
 
   return (
     <article className="buyer-card">
-      <Link className="buyer-card-image-container" to={`/product/${product.id}`}>
+      <Link className="buyer-card-image-container" >
         <img
           src={product.imageUrl || '/placeholder.jpg'}
           alt={product.name}
