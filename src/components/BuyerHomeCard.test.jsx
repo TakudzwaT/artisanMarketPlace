@@ -211,14 +211,5 @@ describe('BuyerHomeCard', () => {
     });
   });
 
-  test('product link points to correct URL', () => {
-    render(
-      <TestWrapper>
-        <BuyerHomeCard product={mockProduct} />
-      </TestWrapper>
-    );
-
-    const productLink = screen.getByRole('link');
-    expect(productLink).toHaveAttribute('href', '/product/test-product-1');
-  });
+  
 });

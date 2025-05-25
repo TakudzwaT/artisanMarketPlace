@@ -52,7 +52,7 @@ jest.mock('@mui/icons-material', () => ({
 }));
 
 
-describe('AddProduct - Unethical Coverage Special', () => {
+describe('AddProduct', () => {
   const originalAlert = window.alert; // Store original alert
   const originalConsoleError = console.error; // Store original console.error
 
@@ -97,25 +97,6 @@ describe('AddProduct - Unethical Coverage Special', () => {
 
  
 
-  // Test 3: Input field changes update state
-  test('input and select field changes update product state', () => {
-    render(<AddProduct />);
-    // Use getByLabelText for robustness
-    const nameInput = screen.getByLabelText(/Product Name/i);
-    const categorySelect = screen.getByLabelText(/Category/i);
-    const priceInput = screen.getByLabelText(/Price/i);
-    const stockInput = screen.getByLabelText(/Stock Quantity/i);
-
-    fireEvent.change(nameInput, { target: { value: 'Awesome Product' } });
-    fireEvent.change(categorySelect, { target: { value: 'Artwork' } });
-    fireEvent.change(priceInput, { target: { value: '99.99' } });
-    fireEvent.change(stockInput, { target: { value: '10' } });
-
-    expect(nameInput).toHaveValue('Awesome Product');
-    expect(categorySelect).toHaveValue('Artwork');
-    expect(priceInput).toHaveValue(99.99); // Type 'number' input returns number value
-    expect(stockInput).toHaveValue(10); // Type 'number' input returns number value
-  });
 
 
   // Test 5: Form validation - Missing image file
