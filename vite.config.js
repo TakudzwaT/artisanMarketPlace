@@ -8,13 +8,7 @@ export default defineConfig({
       usePolling: true, // fallback to polling
       interval: 1000, // check every second
       ignored: [
-        '**/node_modules/**',
-        '**/.git/**',
-        '**/dist/**',
-        '**/build/**',
-        '**/vendor/**',
-        '**/storage/**',
-        '**/.vscode/**',
+        
       ]
     }
   }

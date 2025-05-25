@@ -45,23 +45,23 @@ function Card(prop) {
         </figure>
         <section className="card-details">
           <header className="card-header">
-            <div className="card-title-container">
+            <section className="card-title-container">
               <h2 className="card-title">Order #{getDisplayOrderId()}</h2>
               {prop.shopName && <p className="shop-name">from {prop.shopName}</p>}
-            </div>
+            </section>
             <section className={`status-tag ${getStatusColor()}`}>
               {prop.status || 'Pending'}
             </section>
           </header>
           <section className="card-content">
             <p className="card-date">
-              <span className="label">Order Date:</span> {prop.date || 'Unknown date'}
+              <section className="label">Order Date:</section> {prop.date || 'Unknown date'}
             </p>
             <p className="card-description">
               {prop.description || 'Product'}
             </p>
             <p className="card-price">
-              <span className="label">Price:</span> R{formatPrice(prop.price)}
+              <section className="label">Price:</section> R{formatPrice(prop.price)}
             </p>
           </section>
         </section>

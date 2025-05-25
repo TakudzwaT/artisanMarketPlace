@@ -146,7 +146,7 @@ export default function ManageStore() {
     return (
       <>
         <Navi />
-        <main className="container">
+        <main className="manage-store-container">
           <section className="error-container">
             <h2 className="error-message">{error}</h2>
             <button className="button primary" onClick={() => navigate('/login')}>
@@ -162,8 +162,10 @@ export default function ManageStore() {
     return (
       <>
         <Navi />
-        <main className="loading-container">
-          <CircularProgress size={60} style={{ color: '#6D4C41' }} />
+        <main className="manage-store-container">
+          <section className="loading-container">
+            <CircularProgress size={60} style={{ color: '#6D4C41' }} />
+          </section>
         </main>
       </>
     );
@@ -172,42 +174,49 @@ export default function ManageStore() {
   return (
     <>
       <Navi />
-      <main className="container">
-        <header className="header">
-          <h1 className="title">Manage {store.storeName}</h1>
-          <nav className="toolbar" role="toolbar" aria-label="Store management actions">
-            <fieldset className="search-container">
-              <label htmlFor="product-search" className="sr-only">Search products</label>
+      <main className="manage-store-container">
+        <header className="page-header">
+          <h1 className="page-title">Manage {store.storeName}</h1>
+        </header>
+
+        <section className="controls-section">
+          <fieldset className="search-section">
+            <legend className="sr-only">Search Products</legend>
+            <label className="search-container">
+              <Search className="search-icon" />
               <input
-                id="product-search"
                 type="search"
                 className="search-input"
-                placeholder="Search products..."
+                placeholder="Search products by name or category..."
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
                 aria-label="Search products by name or category"
               />
-            </fieldset>
+            </label>
+          </fieldset>
+          
+          <nav className="action-buttons-section" aria-label="Product actions">
             <button 
-              className="button primary" 
+              className="button primary add-button" 
               onClick={() => navigate('/add-product')}
               aria-label="Add new product"
             >
-              <Add aria-hidden="true" /> New Product
+              <Add /> Add Product
             </button>
             <button
-              className="button danger"
+              className="button danger delete-button"
               onClick={openDelete}
               disabled={products.length === 0}
-              aria-label="Delete selected products"
+              aria-label="Delete products"
             >
-              <Delete aria-hidden="true" /> Delete
+              <Delete /> Delete Products
             </button>
           </nav>
-        </header>
+        </section>
 
-        <section className="products-section" aria-label="Products list">
-          <table className="table" role="table" aria-label="Products information">
+        <section className="products-table-section" aria-labelledby="products-heading">
+          <h2 id="products-heading" className="sr-only">Products List</h2>
+          <table className="products-table" aria-label="Products information">
             <thead>
               <tr>
                 <th className="table-header" scope="col">Image</th>
@@ -222,14 +231,14 @@ export default function ManageStore() {
             <tbody>
               {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="table-cell no-products">
-                    {products.length === 0 ? 'No products found' : 'No products match your search'}
+                  <td colSpan="7" className="no-products-cell">
+                    {products.length === 0 ? 'No products found. Click "Add Product" to get started.' : 'No products match your search criteria.'}
                   </td>
                 </tr>
               ) : (
                 filteredProducts.map(product => (
-                  <tr key={product.id} className="table-row">
-                    <td className="table-cell">
+                  <tr key={product.id} className="product-row">
+                    <td className="table-cell image-cell">
                       <img
                         src={product.imageUrl || '/placeholder-image.png'}
                         alt={`${product.name} product image`}
@@ -240,29 +249,36 @@ export default function ManageStore() {
                         }}
                       />
                     </td>
-                    <td className="table-cell">{product.name}</td>
-                    <td className="table-cell">{product.category}</td>
-                    <td className="table-cell">R{product.price}</td>
-                    <td className="table-cell">{product.stock}</td>
-                    <td className="table-cell">
+                    <td className="table-cell product-name-cell">
+                      <strong className="product-name">{product.name}</strong>
+                    </td>
+                    <td className="table-cell category-cell">{product.category}</td>
+                    <td className="table-cell price-cell">
+                      <data className="price" value={product.price}>R{product.price}</data>
+                    </td>
+                    <td className="table-cell stock-cell">
+                      <data className="stock-number" value={product.stock}>{product.stock}</data>
+                    </td>
+                    <td className="table-cell status-cell">
                       {product.status === 'Active' ? (
-                        <strong className="status active" aria-label="Product is active">
-                          <CheckCircle aria-hidden="true" /> Active
-                        </strong>
+                        <mark className="status-badge active" aria-label="Product is active">
+                          <CheckCircle className="status-icon" /> Active
+                        </mark>
                       ) : (
-                        <strong className="status out-of-stock" aria-label="Product is out of stock">
-                          <Cancel aria-hidden="true" /> Out of Stock
-                        </strong>
+                        <mark className="status-badge out-of-stock" aria-label="Product is out of stock">
+                          <Cancel className="status-icon" /> Out of Stock
+                        </mark>
                       )}
                     </td>
-                    <td className="table-cell">
-                      <menu className="action-buttons" role="group" aria-label={`Actions for ${product.name}`}>
+                    <td className="table-cell actions-cell">
+                      <menu className="action-buttons-group">
                         <li>
                           <IconButton
                             onClick={() => updateStock(product.id)}
                             title="Update Stock"
                             aria-label={`Update stock for ${product.name}`}
-                            style={{ color: '#A9744F' }}
+                            className="action-btn stock-btn"
+                            size="small"
                           >
                             <Edit />
                           </IconButton>
@@ -272,7 +288,8 @@ export default function ManageStore() {
                             onClick={() => updatePrice(product.id)}
                             title="Update Price"
                             aria-label={`Update price for ${product.name}`}
-                            style={{ color: '#A9744F' }}
+                            className="action-btn price-btn"
+                            size="small"
                           >
                             <AttachMoney />
                           </IconButton>
@@ -287,19 +304,21 @@ export default function ManageStore() {
         </section>
 
         {showModal && (
-          <section className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
-            <section className="modal-content">
-              <header>
+          <dialog className="modal-overlay" open aria-labelledby="delete-modal-title">
+            <article className="modal-content">
+              <header className="modal-header">
                 <h2 id="delete-modal-title">Delete Products</h2>
+                <p className="modal-subtitle">Select products to delete permanently</p>
               </header>
+              
               <section className="modal-body">
-                <fieldset>
+                <fieldset className="products-list">
                   <legend className="sr-only">Select products to delete</legend>
-                  <ul className="modal-list" role="list">
+                  <ul>
                     {products.map(product => (
                       <li
                         key={product.id}
-                        className="modal-list-item"
+                        className={`product-item ${toDeleteIds.includes(product.id) ? 'selected' : ''}`}
                         onClick={() => toggleDeleteId(product.id)}
                       >
                         <label className="product-checkbox-label">
@@ -307,38 +326,40 @@ export default function ManageStore() {
                             type="checkbox"
                             checked={toDeleteIds.includes(product.id)}
                             onChange={() => toggleDeleteId(product.id)}
-                            aria-describedby={`product-${product.id}-details`}
+                            className="product-checkbox"
                           />
                           <img
                             src={product.imageUrl || '/placeholder-image.png'}
                             alt={`${product.name} product image`}
-                            className="product-image"
-                            style={{ width: '40px', height: '40px' }}
+                            className="product-thumbnail"
                           />
-                          <section id={`product-${product.id}-details`}>
-                            <p>{product.name}</p>
-                            <small style={{ color: '#6D4C41' }}>
-                              ${product.price} • {product.stock} in stock
+                          <address className="product-details">
+                            <strong className="product-name">{product.name}</strong>
+                            <small className="product-info">
+                              R{product.price} • {product.stock} in stock
                             </small>
-                          </section>
+                          </address>
                         </label>
                       </li>
                     ))}
                   </ul>
                 </fieldset>
               </section>
-              <footer className="modal-actions">
-                <button className="button primary" onClick={closeDelete}>Cancel</button>
+              
+              <footer className="modal-footer">
+                <button className="button secondary" onClick={closeDelete}>
+                  Cancel
+                </button>
                 <button
                   className="button danger"
                   onClick={confirmDelete}
                   disabled={!toDeleteIds.length}
                 >
-                  Confirm Delete ({toDeleteIds.length})
+                  Delete Selected ({toDeleteIds.length})
                 </button>
               </footer>
-            </section>
-          </section>
+            </article>
+          </dialog>
         )}
       </main>
     </>

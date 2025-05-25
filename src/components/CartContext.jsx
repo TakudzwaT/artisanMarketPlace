@@ -4,7 +4,7 @@ import { doc, collection, setDoc, updateDoc, deleteDoc, onSnapshot, query, where
 import { db } from '../firebase';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
-const CartContext = createContext();
+export const CartContext = createContext();
 
 const cartReducer = (state, action) => {
   switch (action.type) {

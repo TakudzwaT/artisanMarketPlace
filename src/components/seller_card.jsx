@@ -73,7 +73,7 @@ function Card(props) {
   
   return (
     <article className="seller-card">
-      <div className="seller-card-main">
+      <section className="seller-card-main">
         <figure className="seller-card-image-container">
           <img 
             className="card-image" 
@@ -88,12 +88,12 @@ function Card(props) {
         
         <section className="seller-card-details">
           <header className="seller-card-header">
-            <div className="seller-card-title-section">
+            <section className="seller-card-title-section">
               <h2 className="seller-card-title">Order #{props.OrderID.substring(0, 8)}...</h2>
               <p className="seller-card-date">
-                <span className="label">Ordered:</span> {formatDate(props.date)}
+                <section className="label">Ordered:</section> {formatDate(props.date)}
               </p>
-            </div>
+            </section>
             
             <section className="status-section">
               {isEditing ? (
@@ -109,9 +109,9 @@ function Card(props) {
                   <option value="cancelled">Cancelled</option>
                 </select>
               ) : (
-                <span className={`status-badge ${getStatusColor()}`}>
+                <section className={`status-badge ${getStatusColor()}`}>
                   {selectedOption || 'Processing'}
-                </span>
+                </section>
               )}
               
               <button
@@ -124,28 +124,28 @@ function Card(props) {
           </header>
           
           <section className="seller-card-content">
-            <div className="seller-card-info">
+            <section className="seller-card-info">
               <p className="seller-card-description">
                 {props.description}
               </p>
               
-              <div className="seller-card-pricing">
+              <section className="seller-card-pricing">
                 <p className="card-price">
-                  <span className="label">Price:</span> R{props.price}
+                  <section className="label">Price:</section> R{props.price}
                 </p>
                 
                 <p className="card-quantity">
-                  <span className="label">Qty:</span> {props.quantity || 1}
+                  <section className="label">Qty:</section> {props.quantity || 1}
                 </p>
                 
                 <p className="card-total">
-                  <span className="label">Total:</span> R{totalPrice}
+                  <section className="label">Total:</section> R{totalPrice}
                 </p>
-              </div>
-            </div>
+              </section>
+            </section>
           </section>
         </section>
-      </div>
+      </section>
     </article>
   );
 }

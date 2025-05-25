@@ -1,0 +1,160 @@
+.container {
+  min-height: 100vh;
+  background-color: #f8f5f2;
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.formCard {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 700px;
+}
+
+.formHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.backButton {
+  color: #6D4C41;
+  margin-right: 1rem;
+}
+
+.formTitle {
+  color: #4B3621;
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+.uploadArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #DBA159;
+  border-radius: 12px;
+  padding: 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #fffaf5;
+  min-height: 250px;
+  margin-bottom: 2rem;
+}
+
+.uploadIcon {
+  font-size: 3rem;
+  color: #DBA159;
+  margin-bottom: 1rem;
+}
+
+.uploadText {
+  color: #6D4C41;
+  margin: 0;
+  font-weight: 500;
+}
+
+.uploadSubtext {
+  color: #A9744F;
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+}
+
+.imagePreview {
+  max-width: 100%;
+  max-height: 300px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.inputLabel {
+  display: flex;
+  align-items: center;
+  color: #6D4C41;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.inputIcon {
+  margin-right: 0.5rem;
+  color: #A9744F;
+  font-size: 1.2rem;
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid #e0d7d1;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: #fff;
+}
+
+.formSelect {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid #e0d7d1;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background-color: #fff;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236D4C41'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+  padding-right: 2.5rem;
+}
+
+.inputError {
+  border-color: #dc3545;
+}
+
+.priceStockRow {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.halfWidth {
+  flex: 1;
+}
+
+.errorMessage {
+  color: #dc3545;
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 1rem;
+  background-color: #A9744F;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buttonDisabled {
+  background-color: #DBA159;
+  cursor: not-allowed;
+  opacity: 0.8;
+}

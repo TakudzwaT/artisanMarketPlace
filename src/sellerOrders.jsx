@@ -199,26 +199,26 @@ function SellerOrders() {
 
   return (
     <><Navi />
-    <div className="seller-orders-container">
+    <section className="seller-orders-container">
       
-      <div className="orders-header">
+      <section className="orders-header">
         <h1>Manage Orders</h1>
         <p>View and update the status of your store's orders</p>
-      </div>
+      </section>
       {loading ? (
-        <div className="loading-spinner">
-          <div className="spinner"></div>
+        <section className="loading-spinner">
+          <section className="spinner"></section>
           <p>Loading orders...</p>
-        </div>
+        </section>
       ) : error ? (
-        <div className="error-message">
+        <section className="error-message">
           <p>{error}</p>
           <button onClick={() => window.location.reload()}>Retry</button>
-        </div>
+        </section>
       ) : (
         <section className="orders-section">{renderOrderCards()}</section>
       )}
-    </div>
+    </section>
     </>
   );
 }

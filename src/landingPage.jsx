@@ -31,7 +31,7 @@ export default function LandingPage() {
       overflow: 'hidden'
     }}>
       {/* Animated background elements */}
-      <div style={{
+      <section style={{
         position: 'absolute',
         top: '-50px',
         left: '-50px',
@@ -40,9 +40,9 @@ export default function LandingPage() {
         background: 'radial-gradient(circle, #8B5E3C 0%, transparent 70%)',
         opacity: '0.1',
         transform: 'rotate(45deg)'
-      }}></div>
+      }}></section>
 
-      <div style={{
+      <section style={{
         position: 'absolute',
         bottom: '-100px',
         right: '-100px',
@@ -51,7 +51,7 @@ export default function LandingPage() {
         background: 'radial-gradient(circle, #4B3621 0%, transparent 70%)',
         opacity: '0.1',
         borderRadius: '50%'
-      }}></div>
+      }}></section>
 
       <h1 style={{ 
         fontSize: '3rem', 
@@ -64,13 +64,13 @@ export default function LandingPage() {
         position: 'relative',
         zIndex: 1
       }} className="fade-in">
-        <span style={{
+        <section style={{
           display: 'block',
           fontSize: '1.2rem',
           color: '#8B5E3C',
           letterSpacing: '4px',
           marginBottom: '1rem'
-        }}>Discover Handcrafted Treasures</span>
+        }}>Discover Handcrafted Treasures</section>
         Welcome to Artisan Market
       </h1>
 
@@ -130,7 +130,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Floating decorative elements */}
-      <div style={{
+      <section style={{
         position: 'absolute',
         top: '30%',
         left: '20%',
@@ -140,7 +140,7 @@ export default function LandingPage() {
         <svg width="40" height="40" viewBox="0 0 24 24" fill="#4B3621">
           <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
         </svg>
-      </div>
+      </section>
     </main>
   );
 }

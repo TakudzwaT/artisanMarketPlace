@@ -96,21 +96,21 @@ function AboutUs() {
         }
       `}</style>
 
-      <div className="about-us-container">
+      <section className="about-us-container">
         <h1 className="AboutUsH">Welcome to Local Artisan!</h1>
         <p className="intro-text">
           We're a team of passionate creators dedicated to supporting local craftsmanship and bringing you unique, hand-made treasures.
         </p>
         <h2 className="AboutUsH">Meet the Dream Team ✨</h2>
-        <div className="team-cards">
+        <section className="team-cards">
           {teamMembers.map(member => (
-            <div key={member.name} className="card">
-              <div className="card-inner">
-                <div className="card-face card-front">
+            <section key={member.name} className="card">
+              <section className="card-inner">
+                <section className="card-face card-front">
                   <h3>{member.name}</h3>
                   <p>{member.title}</p>
-                </div>
-                <div className="card-face card-back">
+                </section>
+                <section className="card-face card-back">
                   <h3>About</h3>
                   <p>{member.description}</p>
                   <img
@@ -118,15 +118,15 @@ function AboutUs() {
                     alt={member.name}
                     style={{ width: '80%', borderRadius: '8px', marginTop: '0.5rem' }}
                   />
-                </div>
-              </div>
-            </div>
+                </section>
+              </section>
+            </section>
           ))}
-        </div>
+        </section>
         <p className="closing-text">
           We are on a mission to make buying local feel global. Thanks for being part of our journey!
         </p>
-      </div>
+      </section>
     </>
   );
 }

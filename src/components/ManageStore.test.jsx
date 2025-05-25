@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render,within, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter, useNavigate } from 'react-router-dom';
 import ManageStore from './ManageStore';
 import * as firestore from 'firebase/firestore';
@@ -140,7 +140,9 @@ describe('ManageStore Component', () => {
 
     expect(screen.getByText('Product 1')).toBeInTheDocument();
     expect(screen.getByText('Category 1')).toBeInTheDocument();
-    expect(screen.getByText((_, el) => el.textContent === 'R10.99')).toBeInTheDocument();
+    const product1Row = screen.getByText('Product 1').closest('tr');
+expect(within(product1Row).getByText('R10.99')).toBeInTheDocument();
+
 
 
     expect(screen.getByText('Product 2')).toBeInTheDocument();
@@ -231,7 +233,7 @@ describe('ManageStore Component', () => {
       expect(screen.getByText('Manage Test Store')).toBeInTheDocument();
     });
 
-    const search = screen.getByPlaceholderText('Search products...');
+    const search = screen.getByPlaceholderText('Search products by name or category...');
     fireEvent.change(search, { target: { value: 'Category 1' } });
 
     expect(screen.getByText('Product 1')).toBeInTheDocument();

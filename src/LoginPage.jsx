@@ -52,16 +52,16 @@ export default function LoginPage() {
 
   if (isLoading) {
     return (
-      <div style={styles.loadingContainer}>
+      <section style={styles.loadingContainer}>
         <CircularProgress size={60} style={{ color: '#6D4C41' }} />
         <p style={styles.loadingText}>Logging in...</p>
-      </div>
+      </section>
     );
   }
 
   return (
     <main style={styles.container}>
-      <div style={styles.card}>
+      <section style={styles.card}>
   <img 
     src="https://cdn-icons-png.flaticon.com/512/6738/6738021.png" 
     alt="Market Icon" 
@@ -70,7 +70,7 @@ export default function LoginPage() {
         <h1 style={styles.title}>Artisan Market</h1>
         <p style={styles.subtitle}>Handcrafted treasures await</p>
         
-        <div style={styles.buttonContainer}>
+        <section style={styles.buttonContainer}>
           <button 
             onClick={() => handleLogin('Buyer')}
             style={styles.buyerButton}
@@ -105,8 +105,8 @@ export default function LoginPage() {
   />
   Continue as Admin
 </button>
-        </div>
-      </div>
+        </section>
+      </section>
     </main>
   );
 }

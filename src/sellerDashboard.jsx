@@ -595,9 +595,9 @@ function SellerDashboard() {
                         <td>{product.price}</td>
                         <td>{product.stock}</td>
                         <td>
-                          <span className={`status-pill ${product.status === "Active" ? "status-active" : "status-inactive"}`}>
+                          <section className={`status-pill ${product.status === "Active" ? "status-active" : "status-inactive"}`}>
                             {product.status || (product.stock > 0 ? "In Stock" : "Out of Stock")}
-                          </span>
+                          </section>
                         </td>
                       </tr>
                     ))}

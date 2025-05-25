@@ -190,7 +190,7 @@ function BuyerTrack() {
         <header className="orders-header">
           <h1 className="orders-title" id="orders-heading">
             Your Handcrafted Orders
-            <span className="title-decoration"></span>
+            
           </h1>
           <p className="orders-subtitle">
             Track your unique artisanal purchases
@@ -198,12 +198,12 @@ function BuyerTrack() {
         </header>
         
         {loading ? (
-          <div className="loading-container">
-            <div className="spinner"></div>
+          <section className="loading-container">
+            <section className="spinner"></section>
             <p className="loading-text">Gathering your artisanal orders...</p>
-          </div>
+          </section>
         ) : error ? (
-          <div className="error-container">
+          <section className="error-container">
             <p>{error}</p>
             <button 
               className="retry-button" 
@@ -211,11 +211,11 @@ function BuyerTrack() {
             >
               Try Again
             </button>
-          </div>
+          </section>
         ) : orders.length === 0 ? (
-          <div className="no-orders">
+          <section className="no-orders">
             <p>You haven't placed any orders yet. Discover unique handcrafted items from our artisans.</p>
-          </div>
+          </section>
         ) : (
           <ul className="orders-list">
             {orders.map((order, index) => (
