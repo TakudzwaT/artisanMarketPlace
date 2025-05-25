@@ -1,0 +1,109 @@
+/* src/pages/LoginPage.css */
+.login-container {
+  min-height: 100vh;
+  background-color: #f5e9dd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+  padding: 20px;
+}
+
+.login-card {
+  background-color: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  text-align: center;
+  max-width: 450px;
+  width: 100%;
+}
+
+.login-logo {
+  width: 80px;
+  margin-bottom: 20px;
+}
+
+.login-title {
+  color: #4B3621;
+  font-size: 2rem;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+}
+
+.login-subtitle {
+  color: #7a6552;
+  font-size: 1rem;
+  margin-bottom: 40px;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.buyer-button,
+.seller-button,
+.admin-button {
+  color: white;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.buyer-button {
+  background-color: #DBA159;
+}
+
+.seller-button {
+  background-color: #A9744F;
+}
+
+.admin-button {
+  background-color: #6D4C41;
+}
+
+.buyer-button:hover,
+.seller-button:hover,
+.admin-button:hover {
+  transform: translateY(-2px);
+}
+
+.buyer-button:active,
+.seller-button:active,
+.admin-button:active {
+  transform: translateY(0);
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f5e9dd;
+}
+
+.loading-spinner {
+  color: #6D4C41 !important;
+}
+
+.loading-text {
+  margin-top: 20px;
+  color: #6D4C41;
+  font-size: 1.2rem;
+}

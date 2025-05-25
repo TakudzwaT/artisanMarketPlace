@@ -10,20 +10,20 @@ const OrderCard = ({ description, price, date, OrderID, ProductID, Img, status, 
           alt={description}
           className="order-image"
         />
-        <span className={`order-status status-${status.toLowerCase()}`}>
+        <section className={`order-status status-${status.toLowerCase()}`}>
           {status}
-        </span>
+        </section>
       </section>
       
       <section className="order-content">
-        <span className="shop-name">{shopName}</span>
+        <section className="shop-name">{shopName}</section>
         
         <h3 className="product-name">{description}</h3>
         
         <section className="order-details">
-          <span className="product-price">
+          <section className="product-price">
             R{parseFloat(price).toFixed(2)}
-          </span>
+          </section>
           
           <time className="order-date" dateTime={date}>
             {date}

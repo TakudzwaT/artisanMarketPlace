@@ -10,15 +10,15 @@ import { ArrowBack, CloudUpload, Category, AttachMoney, Inventory } from '@mui/i
 import './AddProducts.css'
 
 const categoryOptions = [
-  'Textile', 'Jewelry', 'Artwork', 'Clothing', 'Pottery',
-  'Woodwork', 'Textiles','Ceramics' ,'Accessories', 'Stationery', 'Other'
+  'Textile', 'Jewelry',
+  'Woodwork', 'Textile','Ceramics' , 'Other'
 ];
 
 export default function AddProduct() {
   const navigate = useNavigate();
   const storeId = localStorage.getItem('storeId');
-  const [product, setProduct] = useState({ 
-    imageFile: null, name: '', category: '', price: '', stock: '', previewUrl: null 
+  const [product, setProduct] = useState({
+    imageFile: null, name: '', category: '', price: '', stock: '', previewUrl: null
   });
   const [isUploading, setIsUploading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -28,8 +28,9 @@ export default function AddProduct() {
     if (!product.imageFile) newErrors.imageFile = 'Product image is required';
     if (!product.name.trim()) newErrors.name = 'Product name is required';
     if (!product.category.trim()) newErrors.category = 'Category is required';
-    if (product.price <= 0) newErrors.price = 'Valid price is required';
-    if (product.stock <= 0) newErrors.stock = 'Valid quantity is required';
+    // Ensure price and stock are parsed before validation to avoid string issues
+    if (parseFloat(product.price) <= 0 || isNaN(parseFloat(product.price))) newErrors.price = 'Valid price is required';
+    if (parseInt(product.stock, 10) <= 0 || isNaN(parseInt(product.stock, 10))) newErrors.stock = 'Valid quantity is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -82,8 +83,6 @@ export default function AddProduct() {
     }
   };
 
-
-
   return (
   <section className="container">
     <article className="formCard">
@@ -97,11 +96,12 @@ export default function AddProduct() {
       <form onSubmit={handleSubmit}>
         <section>
           <input
-            id="imageUpload"
+            id="imageUpload" // Keep this ID
             type="file"
             accept="image/*"
             onChange={handleImageChange}
             hidden
+            data-testid="image-upload-input" // Add a data-testid for easier selection
           />
           <label htmlFor="imageUpload" className="uploadArea">
             {product.previewUrl ? (
@@ -118,11 +118,12 @@ export default function AddProduct() {
         </section>
 
         <section className="formGroup">
-          <label className="inputLabel">
+          <label htmlFor="productName" className="inputLabel"> {/* Add htmlFor */}
             <Inventory className="inputIcon" />
             Product Name
           </label>
           <input
+            id="productName" // Add id
             type="text"
             value={product.name}
             onChange={(e) => setProduct({ ...product, name: e.target.value })}
@@ -133,11 +134,12 @@ export default function AddProduct() {
         </section>
 
         <section className="formGroup">
-          <label className="inputLabel">
+          <label htmlFor="productCategory" className="inputLabel"> {/* Add htmlFor */}
             <Category className="inputIcon" />
             Category
           </label>
           <select
+            id="productCategory" // Add id
             value={product.category}
             onChange={(e) => setProduct({ ...product, category: e.target.value })}
             className={`formSelect${errors.category ? ' inputError' : ''}`}
@@ -156,11 +158,12 @@ export default function AddProduct() {
 
         <section className="priceStockRow">
           <section className="formGroup halfWidth">
-            <label className="inputLabel">
+            <label htmlFor="productPrice" className="inputLabel"> {/* Add htmlFor */}
               <AttachMoney className="inputIcon" />
               Price
             </label>
             <input
+              id="productPrice" // Add id
               type="number"
               value={product.price}
               onChange={(e) => setProduct({ ...product, price: e.target.value })}
@@ -173,11 +176,12 @@ export default function AddProduct() {
           </section>
 
           <section className="formGroup halfWidth">
-            <label className="inputLabel">
+            <label htmlFor="productStock" className="inputLabel"> {/* Add htmlFor */}
               <Inventory className="inputIcon" />
               Stock Quantity
             </label>
             <input
+              id="productStock" // Add id
               type="number"
               value={product.stock}
               onChange={(e) => setProduct({ ...product, stock: e.target.value })}

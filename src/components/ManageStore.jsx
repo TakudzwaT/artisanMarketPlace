@@ -231,7 +231,7 @@ export default function ManageStore() {
             <tbody>
               {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="no-products-cell">
+                  <td colsection="7" className="no-products-cell">
                     {products.length === 0 ? 'No products found. Click "Add Product" to get started.' : 'No products match your search criteria.'}
                   </td>
                 </tr>

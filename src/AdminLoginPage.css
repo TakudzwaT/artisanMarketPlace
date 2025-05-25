@@ -1,0 +1,143 @@
+/* src/components/AdminLoginPage.css */
+
+/* General Layout & Container */
+.login-container {
+  min-height: 100vh;
+  background-color: #f5e9dd; /* A warm, light background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: 'Inter', sans-serif; /* Modern sans-serif font */
+}
+
+/* Card Styling */
+.login-card {
+  background-color: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1); /* Soft shadow */
+  text-align: center;
+  max-width: 450px;
+  width: 100%;
+}
+
+/* Logo, Title, Subtitle */
+.login-logo {
+  width: 80px;
+  margin-bottom: 20px;
+}
+
+.login-title {
+  color: #4B3621; /* Dark brown, primary brand color */
+  font-size: 2rem;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+}
+
+.login-subtitle {
+  color: #7a6552; /* Softer brown for secondary text */
+  font-size: 1rem;
+  margin-bottom: 40px;
+}
+
+/* Button Group */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Common Button Styles */
+.login-button {
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  display: flex; /* For icon alignment */
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Specific Button Styles */
+.login-button.admin {
+  background-color: #3E2723; /* Darker brown for admin actions */
+  color: white;
+}
+
+.login-button.home {
+  background-color: transparent;
+  color: #4B3621;
+  border: 1px solid #4B3621;
+  font-size: 0.9rem;
+  padding: 12px; /* Slightly smaller padding */
+}
+
+/* Button Hover Effects */
+.login-button:hover {
+  transform: translateY(-2px);
+}
+
+.login-button:active {
+  transform: translateY(0);
+}
+
+/* Icons within buttons */
+.button-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Loading State */
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f5e9dd;
+  text-align: center; /* Ensure text is centered */
+}
+
+.loading-text {
+  margin-top: 20px;
+  color: #6D4C41; /* A medium brown for loading text */
+  font-size: 1.2rem;
+}
+
+/* Error Message */
+.error-message {
+  color: #D32F2F; /* Standard error red */
+  background-color: #FFEBEE; /* Light red background */
+  margin-bottom: 20px;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+/* Note at bottom */
+.login-note {
+  font-size: 0.9rem;
+  color: #7a6552;
+  margin-top: 30px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .login-card {
+    padding: 30px 20px;
+    margin: 0 15px; /* Add some margin on very small screens */
+  }
+
+  .login-title {
+    font-size: 1.8rem;
+  }
+
+  .login-logo {
+    width: 70px;
+  }
+}

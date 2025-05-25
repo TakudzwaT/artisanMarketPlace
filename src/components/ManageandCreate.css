@@ -24,7 +24,7 @@
     font-weight: bold;
   }
   .site-header nav a,
-  .site-header nav span {
+  .site-header nav section {
     margin-left: 1rem;
     color: var(--text-light);
     text-decoration: none;

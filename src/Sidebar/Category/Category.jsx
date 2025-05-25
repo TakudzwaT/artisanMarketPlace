@@ -1,5 +1,6 @@
 import "./Category.css";
 import Input from "../../components/BuyerHomeInput.jsx";
+import React from "react";
 
 function Category({ handleChange, selectedValue }) {
   return (

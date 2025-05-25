@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { collectionGroup, getDocs } from "firebase/firestore";
 import { db } from "./firebase";
 import BuyerHomeCard from "./components/BuyerHomeCard";
-import Recommended from "./Recommended/Recommended";
 import Sidebar from "./Sidebar/Sidebar";
 import Nav from "./components/nav";
 import LoadCredits from "./components/LoadCredits";
@@ -69,7 +68,6 @@ export default function BuyerHome() {
   const handlePriceChange = (e) => setSelectedPrice(e.target.value);
   const handleColorChange = (e) => setSelectedColor(e.target.value);
   const handleSearchChange = (e) => setSearchQuery(e.target.value);
-  const handleRecommendedClick = (value) => setSelectedCategory(value);
   const resetFilters = () => {
     setSelectedCategory("");
     setSelectedPrice("");
@@ -123,12 +121,6 @@ export default function BuyerHome() {
               Reset Filters
             </button>
           </form>
-
-          {/* Recommended categories */}
-          <section aria-labelledby="recommended-heading">
-            <h2 id="recommended-heading" className="sr-only"></h2>
-            <Recommended handleClick={handleRecommendedClick} />
-          </section>
 
           {/* Product grid */}
           <ul className="buyer-card-container" aria-label="Product List">

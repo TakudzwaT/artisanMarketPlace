@@ -36,7 +36,7 @@ jest.mock('../firebase', () => ({
 // Mock navigation component
 jest.mock('./sellerNav', () => ({
   __esModule: true,
-  default: () => <div data-testid="seller-nav">Navigation</div>,
+  default: () => <section data-testid="seller-nav">Navigation</section>,
 }));
 
 describe('ManageStore Component', () => {

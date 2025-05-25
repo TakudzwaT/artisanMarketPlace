@@ -5,12 +5,20 @@ import { signInWithPopup, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { CircularProgress } from '@mui/material';
+import './LoginPage.css'; // Import the CSS file
+import React from 'react';
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (role) => {
+    // Special handling for Admin button: navigate directly
+    if (role === 'Admin') {
+      navigate('/admin/login');
+      return;
+    }
+
     try {
       setIsLoading(true);
       const result = await signInWithPopup(auth, provider);
@@ -22,16 +30,17 @@ export default function LoginPage() {
       if (!userSnap.exists()) {
         await signOut(auth);
         alert('No account found. Please sign up first.');
-        setIsLoading(false);
+        setIsLoading(false); // Ensure loading is off before returning
         return;
       }
 
       const userData = userSnap.data();
 
+      // Check if the user has the selected role
       if (!userData[role.toLowerCase()]) {
         await signOut(auth);
         alert(`You don't have a ${role} account. Please sign up as a ${role}.`);
-        setIsLoading(false);
+        setIsLoading(false); // Ensure loading is off before returning
         return;
       }
 
@@ -42,6 +51,8 @@ export default function LoginPage() {
         localStorage.setItem('userId', user.uid);
       }
       
+      // FIX: Set isLoading to false *before* navigating
+      setIsLoading(false);
       navigate(role === 'Seller' ? '/manage' : '/buyer');
     } catch (error) {
       console.error('Login Error:', error);
@@ -52,174 +63,61 @@ export default function LoginPage() {
 
   if (isLoading) {
     return (
-      <section style={styles.loadingContainer}>
-        <CircularProgress size={60} style={{ color: '#6D4C41' }} />
-        <p style={styles.loadingText}>Logging in...</p>
+      <section className="loading-container">
+        <CircularProgress size={60} className="loading-spinner" />
+        <p className="loading-text">Logging in...</p>
       </section>
     );
   }
 
   return (
-    <main style={styles.container}>
-      <section style={styles.card}>
-  <img 
-    src="https://cdn-icons-png.flaticon.com/512/6738/6738021.png" 
-    alt="Market Icon" 
-    style={styles.logo}
-  />
-        <h1 style={styles.title}>Artisan Market</h1>
-        <p style={styles.subtitle}>Handcrafted treasures await</p>
+    <main className="login-container">
+      <section className="login-card">
+        <img 
+          src="https://cdn-icons-png.flaticon.com/512/6738/6738021.png" 
+          alt="Market Icon" 
+          className="login-logo"
+        />
+        <h1 className="login-title">Artisan Market</h1>
+        <p className="login-subtitle">Handcrafted treasures await</p>
         
-        <section style={styles.buttonContainer}>
+        <section className="button-container">
           <button 
             onClick={() => handleLogin('Buyer')}
-            style={styles.buyerButton}
+            className="buyer-button"
           >
             <img 
               src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" 
               alt="Google" 
-              style={styles.icon}
+              className="icon"
             />
             Continue as Buyer
           </button>
           
           <button 
             onClick={() => handleLogin('Seller')}
-            style={styles.sellerButton}
+            className="seller-button"
           >
             <img 
               src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" 
               alt="Google" 
-              style={styles.icon}
+              className="icon"
             />
             Continue as Seller
           </button>
           <button
-  onClick={() => navigate('/admin/login')}
-  style={styles.adminButton}
->
-  <img 
-    src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" 
-    alt="Admin Icon" 
-    style={styles.icon}
-  />
-  Continue as Admin
-</button>
+            onClick={() => handleLogin('Admin')}
+            className="admin-button"
+          >
+            <img 
+              src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" 
+              alt="Admin Icon" 
+              className="icon"
+            />
+            Continue as Admin
+          </button>
         </section>
       </section>
     </main>
   );
 }
-
-const styles = {
-  container: {
-    minHeight: '100vh',
-    backgroundColor: '#f5e9dd',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontFamily: "'Inter', sans-serif",
-    padding: '20px',
-  },
-  card: {
-    backgroundColor: 'white',
-    borderRadius: '20px',
-    padding: '40px',
-    boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-    textAlign: 'center',
-    maxWidth: '450px',
-    width: '100%',
-  },
-  logo: {
-    width: '80px',
-    marginBottom: '20px',
-  },
-  title: {
-    color: '#4B3621',
-    fontSize: '2rem',
-    margin: '0 0 8px 0',
-    fontWeight: '700',
-  },
-  subtitle: {
-    color: '#7a6552',
-    fontSize: '1rem',
-    marginBottom: '40px',
-  },
-  buttonContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '15px',
-  },
-  buyerButton: {
-    backgroundColor: '#DBA159',
-    color: 'white',
-    padding: '16px',
-    borderRadius: '12px',
-    border: 'none',
-    fontSize: '1rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '10px',
-    transition: 'transform 0.2s, background-color 0.2s',
-  },
-  sellerButton: {
-    backgroundColor: '#A9744F',
-    color: 'white',
-    padding: '16px',
-    borderRadius: '12px',
-    border: 'none',
-    fontSize: '1rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '10px',
-    transition: 'transform 0.2s, background-color 0.2s',
-  },
-  icon: {
-    width: '20px',
-    height: '20px',
-  },
-  loadingContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '100vh',
-    backgroundColor: '#f5e9dd',
-  },
-  adminButton: {
-    backgroundColor: '#6D4C41',
-    color: 'white',
-    padding: '16px',
-    borderRadius: '12px',
-    border: 'none',
-    fontSize: '1rem',
-    fontWeight: '600',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '10px',
-    transition: 'transform 0.2s, background-color 0.2s',
-  },
-  
-  loadingText: {
-    marginTop: '20px',
-    color: '#6D4C41',
-    fontSize: '1.2rem',
-  },
-};
-
-['buyerButton', 'sellerButton'].forEach(key => {
-  styles[key][':hover'] = {
-    transform: 'translateY(-2px)',
-  };
-  styles[key][':active'] = {
-    transform: 'translateY(0)',
-  };
-});

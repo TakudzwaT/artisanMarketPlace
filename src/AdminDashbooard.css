@@ -1,0 +1,240 @@
+/* src/pages/AdminDashboard.css */
+
+.admin-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.loading-spinner {
+  color: #6D4C41 !important; /* Ensure the color applies */
+}
+
+.loading-text {
+  margin-top: 20px;
+  color: #6D4C41;
+  font-size: 1.2rem;
+}
+
+.admin-header {
+  background-color: #4B3621;
+  color: white;
+  padding: 16px 24px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.admin-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.admin-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.admin-user-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.admin-logout-button {
+  color: white !important; /* Important to override Mui button styles */
+  border-color: white !important;
+}
+
+.admin-main {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  flex: 1;
+}
+
+.admin-search-container {
+  margin-bottom: 24px;
+}
+
+.admin-search-input .MuiOutlinedInput-root {
+  background-color: white;
+  border-radius: 8px;
+}
+
+.admin-search-input-props {
+  background-color: white; /* Fallback for older Mui versions or specific overrides */
+  border-radius: 8px; /* Fallback */
+}
+
+.admin-tabs {
+  background-color: white;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.admin-content-container {
+  background-color: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.admin-table-container {
+  overflow-x: auto;
+}
+
+.admin-table-header {
+  display: flex;
+  border-bottom: 2px solid #f0f0f0;
+  font-weight: bold;
+  background-color: #fafafa;
+  border-radius: 8px 8px 0 0;
+}
+
+.admin-table-body {
+  max-height: 600px; /* Adjust as needed */
+  overflow-y: auto;
+}
+
+.admin-table-row {
+  display: flex;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.admin-table-row:hover {
+  background-color: #f9f9f9;
+}
+
+.admin-table-cell {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box; /* Ensure padding is included in width */
+}
+
+.admin-id-column {
+  width: 15%;
+  min-width: 80px; /* Minimum width to prevent excessive truncation */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-name-column {
+  width: 20%;
+  min-width: 120px;
+}
+
+.admin-email-column {
+  width: 20%;
+  min-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-role-column {
+  width: 15%;
+  min-width: 100px;
+}
+
+.admin-status-column {
+  width: 10%;
+  min-width: 80px;
+}
+
+.admin-price-column {
+  width: 10%;
+  min-width: 60px;
+}
+
+.admin-seller-column {
+  width: 25%;
+  min-width: 150px;
+}
+
+.admin-actions-column {
+  width: 20%;
+  min-width: 200px; /* Enough space for two buttons */
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap; /* Allow buttons to wrap if space is tight */
+}
+
+.admin-action-button {
+  font-size: 0.75rem !important;
+  white-space: nowrap;
+}
+
+.status-pill {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.status-pill-disabled {
+  background-color: #FFEBEE;
+  color: #C62828;
+}
+
+.status-pill-active {
+  background-color: #E8F5E9;
+  color: #2E7D32;
+}
+
+.admin-no-content {
+  padding: 24px;
+  text-align: center;
+  color: #757575;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .admin-header-content,
+  .admin-main {
+    padding: 16px;
+  }
+
+  .admin-table-header,
+  .admin-table-row {
+    flex-wrap: wrap; /* Allow columns to wrap on smaller screens */
+  }
+
+  .admin-table-cell {
+    width: 100% !important; /* Make cells take full width on small screens */
+    min-width: unset !important; /* Remove min-width constraints */
+  }
+
+  .admin-id-column,
+  .admin-name-column,
+  .admin-email-column,
+  .admin-role-column,
+  .admin-status-column,
+  .admin-price-column,
+  .admin-seller-column,
+  .admin-actions-column {
+    width: 100% !important;
+    justify-content: flex-start !important; /* Align content to start */
+  }
+
+  .admin-actions-column {
+    flex-direction: column; /* Stack buttons vertically */
+  }
+}

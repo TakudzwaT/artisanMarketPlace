@@ -35,7 +35,7 @@ function Navigation() {
   };
 
   const cartBadge = totalQty > 0 && (
-    <span className="cart-badge-nav">{totalQty}</span>
+    <section className="cart-badge-nav">{totalQty}</section>
   );
 
   const menuItems = (

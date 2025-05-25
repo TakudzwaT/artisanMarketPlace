@@ -1,11 +1,12 @@
-// src/pages/SignupPage.js
-import { useState } from 'react';
+import {useState } from 'react';
+import React from 'react'; 
 import { auth, provider, db } from './firebase';
 import { signInWithPopup } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { CircularProgress } from '@mui/material';
 import { Google, Storefront, ShoppingBag } from '@mui/icons-material';
+import './signup.css'; // Import the CSS file
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -54,103 +55,30 @@ export default function SignupPage() {
     }
   };
 
-  const styles = {
-    container: {
-      minHeight: '100vh',
-      backgroundColor: '#f8f5f2',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '2rem',
-      fontFamily: "'Inter', sans-serif'"
-    },
-    card: {
-      backgroundColor: 'white',
-      borderRadius: '16px',
-      padding: '3rem',
-      boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-      textAlign: 'center',
-      maxWidth: '500px',
-      width: '100%'
-    },
-    logo: {
-      width: '80px',
-      marginBottom: '1.5rem'
-    },
-    title: {
-      color: '#4B3621',
-      fontSize: '2rem',
-      marginBottom: '0.5rem'
-    },
-    subtitle: {
-      color: '#7a6552',
-      fontSize: '1rem',
-      marginBottom: '2rem'
-    },
-    buttonContainer: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '1rem'
-    },
-    roleButton: {
-      padding: '1.2rem',
-      borderRadius: '12px',
-      border: 'none',
-      fontSize: '1.1rem',
-      fontWeight: '600',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '1rem'
-    },
-    buyerButton: {
-      backgroundColor: '#DBA159',
-      color: 'white'
-    },
-    sellerButton: {
-      backgroundColor: '#A9744F',
-      color: 'white'
-    },
-    errorMessage: {
-      color: '#dc3545',
-      marginTop: '1.5rem',
-      fontSize: '0.9rem'
-    },
-    loadingContainer: {
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: '1rem'
-    }
-  };
-
   return (
-    <main style={styles.container}>
-      <section style={styles.card}>
+    <main className="signup-container">
+      <section className="signup-card">
         {/* Market Logo */}
         <img
           src="https://cdn-icons-png.flaticon.com/512/6738/6738021.png"
           alt="Market Logo"
-          style={styles.logo}
+          className="signup-logo"
         />
 
-        <h1 style={styles.title}>Join Artisan Market</h1>
-        <p style={styles.subtitle}>Choose your role to get started</p>
+        <h1 className="signup-title">Join Artisan Market</h1>
+        <p className="signup-subtitle">Choose your role to get started</p>
         
         {loading ? (
-          <section style={styles.loadingContainer}>
-            <CircularProgress size={40} style={{ color: '#6D4C41' }} />
+          <section className="loading-container">
+            <CircularProgress size={40} className="loading-spinner" />
             <p>Creating your account...</p>
           </section>
         ) : (
           <>
-            <section style={styles.buttonContainer}>
+            <section className="button-container">
               <button 
                 onClick={() => handleSignup('Buyer')}
-                style={{ ...styles.roleButton, ...styles.buyerButton }}
+                className="role-button buyer-button"
                 disabled={loading}
               >
                 <Google />
@@ -160,7 +88,7 @@ export default function SignupPage() {
               
               <button 
                 onClick={() => handleSignup('Seller')}
-                style={{ ...styles.roleButton, ...styles.sellerButton }}
+                className="role-button seller-button"
                 disabled={loading}
               >
                 <Google />
@@ -169,9 +97,9 @@ export default function SignupPage() {
               </button>
             </section>
 
-            {error && <p style={styles.errorMessage}>{error}</p>}
+            {error && <p className="error-message">{error}</p>}
 
-            <p style={{ marginTop: '2rem', color: '#7a6552' }}>
+            <p className="signin-message">
               Already have an account? <br />
               Just sign in with Google - we'll recognize your account!
             </p>

@@ -1,25 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  db, 
+import {
+  db,
   auth
 } from './firebase';
-import { 
-  collection, 
-  getDocs, 
+import {
+  collection,
+  getDocs,
   doc,
   getDoc,
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where 
+  updateDoc,
+  deleteDoc,
+  writeBatch, // Import writeBatch for atomic operations
+  query, // Import query
+  where, // Import where for querying orders
 } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
-import { 
-  CircularProgress, 
-  Tabs, 
-  Tab, 
-  Button, 
+import {
+  CircularProgress,
+  Tabs,
+  Tab,
+  Button,
   TextField,
   Dialog,
   DialogActions,
@@ -27,7 +28,8 @@ import {
   DialogContentText,
   DialogTitle
 } from '@mui/material';
-import AdminNavigation from './AdminNavigation';
+import AdminNavigation from './AdminNavigation'; // Assuming this component is still desired, though not used in the snippet logic
+import './AdminDashbooard.css';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -42,52 +44,80 @@ export default function AdminDashboard() {
   const [dialogType, setDialogType] = useState('');
 
   useEffect(() => {
-    const checkAuth = async () => {
+    let mounted = true;
+
+    const checkAuthAndLoadData = async () => {
+      setIsLoading(true);
       try {
         const adminId = localStorage.getItem('adminId');
         if (!adminId) {
-          navigate('/admin/login');
+          if (mounted) {
+            setIsLoading(false);
+            navigate('/admin/login');
+          }
           return;
         }
-        
+
         const userRef = doc(db, 'users', adminId);
         const userSnap = await getDoc(userRef);
-        
+
         if (!userSnap.exists() || !userSnap.data().admin) {
           await signOut(auth);
           localStorage.removeItem('adminId');
-          navigate('/admin/login');
+          localStorage.removeItem('adminEmail'); // Ensure email is also cleared
+          if (mounted) {
+            setIsLoading(false);
+            navigate('/admin/login');
+          }
           return;
         }
-        
-        fetchUsers();
-        fetchProducts();
+
+        // Fetch users and products concurrently for better performance
+        await Promise.all([fetchUsers(), fetchProducts()]);
+
+        if (mounted) {
+          setIsLoading(false);
+        }
       } catch (error) {
-        console.error("Authentication error:", error);
-        navigate('/admin/login');
+        console.error("Authentication or Data Fetching Error:", error);
+        if (mounted) {
+          setIsLoading(false);
+          // If adminId exists but auth fails (e.g., token expired), navigate to login
+          if (localStorage.getItem('adminId')) { // Only navigate if there was an adminId but auth failed
+             alert("Your admin session has expired or is invalid. Please log in again.");
+             navigate('/admin/login');
+             localStorage.removeItem('adminId');
+             localStorage.removeItem('adminEmail');
+          } else {
+             // If no adminId, it means navigation already happened or is about to
+          }
+        }
       }
     };
-    
-    checkAuth();
-  }, [navigate]);
+
+    checkAuthAndLoadData();
+
+    return () => {
+      mounted = false;
+    };
+  }, [navigate]); // Added navigate to dependency array as it's used inside useEffect
 
   const fetchUsers = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, 'users'));
       const usersList = [];
-      
+
       querySnapshot.forEach((doc) => {
         usersList.push({
           id: doc.id,
           ...doc.data()
         });
       });
-      
+
       setUsers(usersList);
-      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching users:", error);
-      setIsLoading(false);
+      alert("Failed to fetch users. Please try again."); // User feedback
     }
   };
 
@@ -95,16 +125,14 @@ export default function AdminDashboard() {
     try {
       const storesSnapshot = await getDocs(collection(db, 'stores'));
       const productsList = [];
-      
+
       for (const storeDoc of storesSnapshot.docs) {
         const storeId = storeDoc.id;
         const storeData = storeDoc.data();
-        
-        // Get products for this store
+
         const productsRef = collection(db, 'stores', storeId, 'products');
         const productsSnapshot = await getDocs(productsRef);
-        
-        // Get store owner information
+
         let sellerName = storeData.storeName || 'Unknown';
         if (storeData.ownerId) {
           const ownerRef = doc(db, 'users', storeData.ownerId);
@@ -113,8 +141,7 @@ export default function AdminDashboard() {
             sellerName = ownerSnap.data().name || ownerSnap.data().displayName || sellerName;
           }
         }
-        
-        // Add each product to our list with store info
+
         productsSnapshot.forEach((productDoc) => {
           productsList.push({
             id: productDoc.id,
@@ -125,17 +152,17 @@ export default function AdminDashboard() {
           });
         });
       }
-      
+
       setProducts(productsList);
-      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching products:", error);
-      setIsLoading(false);
+      alert("Failed to fetch products. Please try again."); // User feedback
     }
   };
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
+    setSearchTerm(''); // Clear search term when changing tabs
   };
 
   const handleLogout = async () => {
@@ -146,6 +173,7 @@ export default function AdminDashboard() {
       navigate('/admin/login');
     } catch (error) {
       console.error("Logout error:", error);
+      alert("Logout failed. Please try again.");
     }
   };
 
@@ -162,9 +190,13 @@ export default function AdminDashboard() {
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
+    setSelectedItem(null); // Clear selected item on close
+    setDialogAction('');
+    setDialogType('');
   };
 
   const handleConfirmAction = async () => {
+    // Perform action based on dialog type and action
     if (dialogType === 'user') {
       if (dialogAction === 'disable') {
         await disableUser(selectedItem);
@@ -176,8 +208,8 @@ export default function AdminDashboard() {
         await deleteProduct(selectedItem);
       }
     }
-    
-    setOpenDialog(false);
+
+    handleCloseDialog(); // Close dialog after action
   };
 
   const disableUser = async (user) => {
@@ -189,42 +221,124 @@ export default function AdminDashboard() {
         seller: false,
         disabled: true
       });
-      fetchUsers();
+      alert(`User ${user.email} has been disabled.`);
+      await fetchUsers(); // Refresh user list
     } catch (error) {
       console.error("Error disabling user:", error);
+      alert("Failed to disable user. Check console for details.");
     }
   };
 
   const deleteUser = async (user) => {
     try {
+      const batch = writeBatch(db); // Use a batch for atomic operations
+
+      // 1. Delete associated store and products if the user is a seller
       if (user.seller) {
-        const storeRef = doc(db, 'stores', user.id);
-        await deleteDoc(storeRef);
+        const storeRef = doc(db, 'stores', user.id); // Assuming store ID is the user's ID
+        batch.delete(storeRef);
+
+        const productsInStoreQuery = collection(db, 'stores', user.id, 'products');
+        const productsSnapshot = await getDocs(productsInStoreQuery);
+        productsSnapshot.forEach((productDoc) => {
+          batch.delete(productDoc.ref);
+        });
+
+        // 2. Delete orders where this user's store was the seller
+        // IMPORTANT: This assumes orders have a 'storeId' field matching the seller's user.id.
+        // If an order can contain items from multiple sellers/stores, this logic
+        // would need to be more complex (e.g., iterating all orders and modifying their 'items' array).
+        const sellerOrdersQuery = query(collection(db, 'orders'), where('storeId', '==', user.id));
+        const sellerOrdersSnapshot = await getDocs(sellerOrdersQuery);
+        sellerOrdersSnapshot.forEach((orderDoc) => {
+          batch.delete(orderDoc.ref);
+        });
+        console.log(`Deleted store, products, and seller orders for user ${user.id}`);
       }
-      await deleteDoc(doc(db, 'users', user.id));
-      fetchUsers();
+
+      // 3. Delete user's own orders (as a buyer)
+      const buyerOrdersQuery = query(collection(db, 'orders'), where('buyerId', '==', user.id));
+      const buyerOrdersSnapshot = await getDocs(buyerOrdersQuery);
+      buyerOrdersSnapshot.forEach((orderDoc) => {
+        batch.delete(orderDoc.ref);
+      });
+      console.log(`Deleted buyer orders for user ${user.id}`);
+
+
+      // 4. Delete the user document itself
+      const userRef = doc(db, 'users', user.id);
+      batch.delete(userRef);
+      console.log(`Deleted user document for user ${user.id}`);
+
+
+      await batch.commit(); // Commit all batch operations
+      alert(`User ${user.email} and all associated data have been permanently deleted.`);
+
+      // Refresh lists after deletion
+      await Promise.all([fetchUsers(), fetchProducts()]);
+
     } catch (error) {
-      console.error("Error deleting user:", error);
+      console.error("Error deleting user and associated data:", error);
+      alert("Failed to delete user and associated data. Check console for details.");
     }
   };
 
   const deleteProduct = async (product) => {
     try {
-      await deleteDoc(doc(db, 'stores', product.storeId, 'products', product.id));
-      fetchProducts();
+      const batch = writeBatch(db); // Use a batch for atomic operations
+
+      // 1. Delete the product document from its store's subcollection
+      const productRef = doc(db, 'stores', product.storeId, 'products', product.id);
+      batch.delete(productRef);
+      console.log(`Deleted product document: ${product.id}`);
+
+      // 2. Update/Delete orders containing this product
+      // CAUTION: This operation can be VERY inefficient for a large number of orders.
+      // Fetching all orders and iterating through them client-side is not scalable.
+      // For production, consider using Firebase Cloud Functions triggered by product deletion
+      // or a more denormalized order structure.
+      const ordersRef = collection(db, 'orders');
+      const ordersSnapshot = await getDocs(ordersRef); // Fetches ALL orders
+
+      ordersSnapshot.forEach((orderDoc) => {
+        const orderData = orderDoc.data();
+        let items = orderData.items || [];
+        const initialItemCount = items.length;
+
+        // Filter out the deleted product from the items array
+        items = items.filter(item => item.productId !== product.id);
+
+        if (items.length === 0 && initialItemCount > 0) { // Only delete if items were present and now are zero
+          // If no items left in the order after removing the product, delete the entire order
+          batch.delete(orderDoc.ref);
+          console.log(`Deleted order ${orderDoc.id} as it became empty after product deletion.`);
+        } else if (items.length < initialItemCount) {
+          // If the product was removed but other items remain, update the order
+          const newTotalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+          batch.update(orderDoc.ref, { items: items, totalAmount: newTotalAmount });
+          console.log(`Updated order ${orderDoc.id} after removing product ${product.id}.`);
+        }
+      });
+
+      await batch.commit(); // Commit all batch operations
+      alert(`Product "${product.name}" and references in orders have been permanently removed.`);
+
+      await fetchProducts(); // Refresh product list after deletion
+
     } catch (error) {
-      console.error("Error deleting product:", error);
+      console.error("Error deleting product and updating orders:", error);
+      alert("Failed to delete product and update associated orders. Check console for details.");
     }
   };
 
-  const filteredUsers = users.filter(user => 
-    user.email?.toLowerCase().includes(searchTerm) || 
+  const filteredUsers = users.filter(user =>
+    user.email?.toLowerCase().includes(searchTerm) ||
     user.displayName?.toLowerCase().includes(searchTerm) ||
     user.name?.toLowerCase().includes(searchTerm)
   );
 
-  const filteredProducts = products.filter(product => 
-    product.name?.toLowerCase().includes(searchTerm) || 
+  const filteredProducts = products.filter(product =>
+    product.name?.toLowerCase().includes(searchTerm) ||
     product.description?.toLowerCase().includes(searchTerm) ||
     product.storeName?.toLowerCase().includes(searchTerm) ||
     product.sellerName?.toLowerCase().includes(searchTerm)
@@ -232,26 +346,28 @@ export default function AdminDashboard() {
 
   if (isLoading) {
     return (
-      <main style={styles.loadingContainer} aria-label="Loading dashboard">
-        <CircularProgress size={60} style={{ color: '#6D4C41' }} />
-        <p style={styles.loadingText}>Loading dashboard...</p>
+      <main className="loading-container" aria-label="Loading dashboard">
+        <CircularProgress size={60} className="loading-spinner" />
+        <p className="loading-text">Loading dashboard...</p>
       </main>
     );
   }
 
   return (
-    <section style={styles.container}>
-      <header style={styles.header}>
-        <section style={styles.headerContent}>
-          <h1 style={styles.title}>Admin Dashboard</h1>
-          <section style={styles.userInfo}>
-            <span>{localStorage.getItem('adminEmail')}</span>
-            <Button 
-              variant="outlined" 
-              color="inherit" 
-              size="small" 
+    <section className="admin-container">
+      {/* AdminNavigation is imported but not rendered. If it should be, add it here. */}
+      {/* <AdminNavigation /> */}
+      <header className="admin-header">
+        <section className="admin-header-content">
+          <h1 className="admin-title">Admin Dashboard</h1>
+          <section className="admin-user-info">
+            <section>{localStorage.getItem('adminEmail')}</section>
+            <Button
+              variant="outlined"
+              color="inherit"
+              size="small"
               onClick={handleLogout}
-              style={styles.logoutButton}
+              className="admin-logout-button"
             >
               Logout
             </Button>
@@ -259,28 +375,25 @@ export default function AdminDashboard() {
         </section>
       </header>
 
-      <main style={styles.main}>
-        <section style={styles.searchContainer}>
+      <main className="admin-main">
+        <section className="admin-search-container">
           <TextField
             fullWidth
             variant="outlined"
             placeholder={activeTab === 0 ? "Search users..." : "Search products..."}
             value={searchTerm}
             onChange={handleSearchChange}
-            style={styles.searchInput}
+            className="admin-search-input"
             InputProps={{
-              style: {
-                backgroundColor: 'white',
-                borderRadius: '8px',
-              }
+              className: "admin-search-input-props"
             }}
           />
         </section>
 
-        <Tabs 
-          value={activeTab} 
+        <Tabs
+          value={activeTab}
           onChange={handleTabChange}
-          style={styles.tabs}
+          className="admin-tabs"
           indicatorColor="primary"
           textColor="primary"
           variant="fullWidth"
@@ -289,108 +402,102 @@ export default function AdminDashboard() {
           <Tab label="Products Management" />
         </Tabs>
 
-        <section style={styles.contentContainer}>
+        <section className="admin-content-container">
           {activeTab === 0 ? (
-            <section style={styles.tableContainer}>
-              <header style={styles.tableHeader}>
-                <span style={{...styles.tableCell, ...styles.idColumn}}>User ID</span>
-                <span style={{...styles.tableCell, ...styles.nameColumn}}>Name</span>
-                <span style={{...styles.tableCell, ...styles.emailColumn}}>Email</span>
-                <span style={{...styles.tableCell, ...styles.roleColumn}}>Roles</span>
-                <span style={{...styles.tableCell, ...styles.statusColumn}}>Status</span>
-                <span style={{...styles.tableCell, ...styles.actionsColumn}}>Actions</span>
+            <section className="admin-table-container">
+              <header className="admin-table-header">
+                <section className="admin-table-cell admin-id-column">User ID</section>
+                <section className="admin-table-cell admin-name-column">Name</section>
+                <section className="admin-table-cell admin-email-column">Email</section>
+                <section className="admin-table-cell admin-role-column">Roles</section>
+                <section className="admin-table-cell admin-status-column">Status</section>
+                <section className="admin-table-cell admin-actions-column">Actions</section>
               </header>
-              
-              <section style={styles.tableBody}>
+
+              <section className="admin-table-body">
                 {filteredUsers.length > 0 ? (
                   filteredUsers.map(user => (
-                    <article key={user.id} style={styles.tableRow}>
-                      <span style={{...styles.tableCell, ...styles.idColumn}}>{user.id.substring(0, 8)}...</span>
-                      <span style={{...styles.tableCell, ...styles.nameColumn}}>{user.name || user.displayName || 'N/A'}</span>
-                      <span style={{...styles.tableCell, ...styles.emailColumn}}>{user.email || 'N/A'}</span>
-                      <span style={{...styles.tableCell, ...styles.roleColumn}}>
-                        {user.buyer && 'Buyer'} 
-                        {user.buyer && user.seller && ', '} 
+                    <article key={user.id} className="admin-table-row">
+                      <section className="admin-table-cell admin-id-column">{user.id.substring(0, 8)}...</section>
+                      <section className="admin-table-cell admin-name-column">{user.name || user.displayName || 'N/A'}</section>
+                      <section className="admin-table-cell admin-email-column">{user.email || 'N/A'}</section>
+                      <section className="admin-table-cell admin-role-column">
+                        {user.buyer && 'Buyer'}
+                        {user.buyer && user.seller && ', '}
                         {user.seller && 'Seller'}
                         {user.admin && (user.buyer || user.seller) && ', '}
                         {user.admin && 'Admin'}
                         {!user.buyer && !user.seller && !user.admin && 'None'}
-                      </span>
-                      <span style={{...styles.tableCell, ...styles.statusColumn}}>
-                        <span style={{
-                          padding: '4px 8px',
-                          borderRadius: '4px',
-                          backgroundColor: user.disabled ? '#FFEBEE' : '#E8F5E9',
-                          color: user.disabled ? '#C62828' : '#2E7D32',
-                          fontSize: '0.8rem',
-                        }}>
+                      </section>
+                      <section className="admin-table-cell admin-status-column">
+                        <section className={`status-pill ${user.disabled ? 'status-pill-disabled' : 'status-pill-active'}`}>
                           {user.disabled ? 'Disabled' : 'Active'}
-                        </span>
-                      </span>
-                      <span style={{...styles.tableCell, ...styles.actionsColumn}}>
-                        <Button 
-                          variant="outlined" 
-                          color="error" 
+                        </section>
+                      </section>
+                      <section className="admin-table-cell admin-actions-column">
+                        <Button
+                          variant="outlined"
+                          color="error"
                           size="small"
                           onClick={() => openConfirmationDialog(user, 'disable', 'user')}
-                          style={styles.actionButton}
-                          disabled={user.disabled}
+                          className="admin-action-button"
+                          disabled={user.disabled} // Disable if already disabled
                         >
                           {user.disabled ? 'Already Disabled' : 'Disable Access'}
                         </Button>
-                        <Button 
-                          variant="outlined" 
-                          color="error" 
+                        <Button
+                          variant="outlined"
+                          color="error"
                           size="small"
                           onClick={() => openConfirmationDialog(user, 'delete', 'user')}
-                          style={styles.actionButton}
+                          className="admin-action-button"
                         >
                           Delete
                         </Button>
-                      </span>
+                      </section>
                     </article>
                   ))
                 ) : (
-                  <p style={styles.noContent}>No users found</p>
+                  <p className="admin-no-content">No users found</p>
                 )}
               </section>
             </section>
           ) : (
-            <section style={styles.tableContainer}>
-              <header style={styles.tableHeader}>
-                <span style={{...styles.tableCell, ...styles.idColumn}}>ID</span>
-                <span style={{...styles.tableCell, ...styles.nameColumn}}>Product</span>
-                <span style={{...styles.tableCell, ...styles.priceColumn}}>Price</span>
-                <span style={{...styles.tableCell, ...styles.sellerColumn}}>Store / Seller</span>
-                <span style={{...styles.tableCell, ...styles.actionsColumn}}>Actions</span>
+            <section className="admin-table-container">
+              <header className="admin-table-header">
+                <section className="admin-table-cell admin-id-column">ID</section>
+                <section className="admin-table-cell admin-name-column">Product</section>
+                <section className="admin-table-cell admin-price-column">Price</section>
+                <section className="admin-table-cell admin-seller-column">Store / Seller</section>
+                <section className="admin-table-cell admin-actions-column">Actions</section>
               </header>
-              
-              <section style={styles.tableBody}>
+
+              <section className="admin-table-body">
                 {filteredProducts.length > 0 ? (
                   filteredProducts.map(product => (
-                    <article key={product.id} style={styles.tableRow}>
-                      <span style={{...styles.tableCell, ...styles.idColumn}}>{product.id.substring(0, 8)}...</span>
-                      <span style={{...styles.tableCell, ...styles.nameColumn}}>{product.name || 'N/A'}</span>
-                      <span style={{...styles.tableCell, ...styles.priceColumn}}>R{product.price || 0}</span>
-                      <span style={{...styles.tableCell, ...styles.sellerColumn}}>
-                        {product.storeName || 'Unknown Store'} 
+                    <article key={product.id} className="admin-table-row">
+                      <section className="admin-table-cell admin-id-column">{product.id.substring(0, 8)}...</section>
+                      <section className="admin-table-cell admin-name-column">{product.name || 'N/A'}</section>
+                      <section className="admin-table-cell admin-price-column">R{product.price || 0}</section>
+                      <section className="admin-table-cell admin-seller-column">
+                        {product.storeName || 'Unknown Store'}
                         {product.sellerName && product.sellerName !== product.storeName && ` / ${product.sellerName}`}
-                      </span>
-                      <span style={{...styles.tableCell, ...styles.actionsColumn}}>
-                        <Button 
-                          variant="outlined" 
-                          color="error" 
+                      </section>
+                      <section className="admin-table-cell admin-actions-column">
+                        <Button
+                          variant="outlined"
+                          color="error"
                           size="small"
                           onClick={() => openConfirmationDialog(product, 'delete', 'product')}
-                          style={styles.actionButton}
+                          className="admin-action-button"
                         >
                           Remove Product
                         </Button>
-                      </span>
+                      </section>
                     </article>
                   ))
                 ) : (
-                  <p style={styles.noContent}>No products found</p>
+                  <p className="admin-no-content">No products found</p>
                 )}
               </section>
             </section>
@@ -408,13 +515,13 @@ export default function AdminDashboard() {
         <DialogContent>
           <DialogContentText>
             {dialogType === 'user' && dialogAction === 'disable' && (
-              `Are you sure you want to disable all access for ${selectedItem?.name || selectedItem?.displayName || selectedItem?.email || 'this user'}? They will not be able to log in as buyer or seller.`
+              `Are you sure you want to disable all access for ${selectedItem?.name || selectedItem?.displayName || selectedItem?.email || 'this user'}? They will not be able to log in as buyer or seller. This action can be undone manually in the database if needed.`
             )}
             {dialogType === 'user' && dialogAction === 'delete' && (
-              `Are you sure you want to permanently delete ${selectedItem?.name || selectedItem?.displayName || selectedItem?.email || 'this user'}? This action cannot be undone.`
+              `Are you sure you want to permanently delete ${selectedItem?.name || selectedItem?.displayName || selectedItem?.email || 'this user'}? This action cannot be undone. This will also delete their store, all products in their store, and any orders associated with them (as a buyer or seller).`
             )}
             {dialogType === 'product' && (
-              `Are you sure you want to remove the product "${selectedItem?.name || 'this product'}"? This action cannot be undone.`
+              `Are you sure you want to permanently remove the product "${selectedItem?.name || 'this product'}"? This action cannot be undone. This will also remove this product from any existing orders.`
             )}
           </DialogContentText>
         </DialogContent>
@@ -430,142 +537,3 @@ export default function AdminDashboard() {
     </section>
   );
 }
-
-const styles = {
-  container: {
-    minHeight: '100vh',
-    backgroundColor: '#f5f5f5',
-    fontFamily: "'Inter', sans-serif",
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  header: {
-    backgroundColor: '#4B3621',
-    color: 'white',
-    padding: '16px 24px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-  },
-  headerContent: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    maxWidth: '1400px',
-    margin: '0 auto',
-    width: '100%',
-  },
-  title: {
-    margin: 0,
-    fontSize: '1.5rem',
-    fontWeight: '600',
-  },
-  userInfo: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '16px',
-  },
-  logoutButton: {
-    color: 'white',
-    borderColor: 'white',
-  },
-  main: {
-    padding: '24px',
-    maxWidth: '1400px',
-    margin: '0 auto',
-    width: '100%',
-    flex: 1,
-  },
-  searchContainer: {
-    marginBottom: '24px',
-  },
-  searchInput: {
-    backgroundColor: 'white',
-  },
-  tabs: {
-    backgroundColor: 'white',
-    borderRadius: '8px',
-    marginBottom: '24px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-  },
-  contentContainer: {
-    backgroundColor: 'white',
-    borderRadius: '8px',
-    padding: '24px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-  },
-  tableContainer: {
-    overflowX: 'auto',
-  },
-  tableHeader: {
-    display: 'flex',
-    borderBottom: '2px solid #f0f0f0',
-    fontWeight: 'bold',
-    backgroundColor: '#fafafa',
-    borderRadius: '8px 8px 0 0',
-  },
-  tableBody: {
-    maxHeight: '600px',
-    overflowY: 'auto',
-  },
-  tableRow: {
-    display: 'flex',
-    borderBottom: '1px solid #f0f0f0',
-    '&:hover': {
-      backgroundColor: '#f9f9f9',
-    },
-  },
-  tableCell: {
-    padding: '16px',
-    display: 'flex',
-    alignItems: 'center',
-  },
-  idColumn: {
-    width: '15%',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  },
-  nameColumn: {
-    width: '20%',
-  },
-  emailColumn: {
-    width: '20%',
-  },
-  roleColumn: {
-    width: '15%',
-  },
-  statusColumn: {
-    width: '10%',
-  },
-  priceColumn: {
-    width: '10%',
-  },
-  sellerColumn: {
-    width: '25%',
-  },
-  actionsColumn: {
-    width: '20%',
-    justifyContent: 'flex-end',
-    gap: '8px',
-  },
-  actionButton: {
-    fontSize: '0.75rem',
-    whiteSpace: 'nowrap',
-  },
-  noContent: {
-    padding: '24px',
-    textAlign: 'center',
-    color: '#757575',
-  },
-  loadingContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '100vh',
-    backgroundColor: '#f5f5f5',
-  },
-  loadingText: {
-    marginTop: '20px',
-    color: '#6D4C41',
-    fontSize: '1.2rem',
-  },
-};

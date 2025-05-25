@@ -1,0 +1,149 @@
+/* src/components/LandingPage.css */
+
+.landing-main {
+  min-height: 100vh;
+  background-color: #F5F1ED;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Georgia', serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated background elements */
+.bg-element-top-left {
+  position: absolute;
+  top: -50px;
+  left: -50px;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, #8B5E3C 0%, transparent 70%);
+  opacity: 0.1;
+  transform: rotate(45deg);
+}
+
+.bg-element-bottom-right {
+  position: absolute;
+  bottom: -100px;
+  right: -100px;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, #4B3621 0%, transparent 70%);
+  opacity: 0.1;
+  border-radius: 50%;
+}
+
+.landing-title {
+  font-size: 3rem;
+  color: #4B3621;
+  margin-bottom: 1rem;
+  opacity: 0; /* Initial state for fade-in */
+  transform: translateY(20px); /* Initial state for fade-in */
+  transition: all 0.8s ease-out;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.landing-subtitle {
+  display: block;
+  font-size: 1.2rem;
+  color: #8B5E3C;
+  letter-spacing: 4px;
+  margin-bottom: 1rem;
+}
+
+.landing-description {
+  margin-bottom: 2rem;
+  color: #5C4033;
+  font-size: 1.1rem;
+  max-width: 600px;
+  text-align: center;
+  line-height: 1.6;
+  opacity: 0; /* Initial state for fade-in */
+  transform: translateY(20px); /* Initial state for fade-in */
+  transition: all 0.8s ease-out 0.2s; /* Delayed transition */
+  position: relative;
+  z-index: 1;
+}
+
+.landing-nav {
+  display: flex;
+  gap: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.landing-btn {
+  padding: 1rem 2rem;
+  border-radius: 30px;
+  text-decoration: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  opacity: 0; /* Initial state for fade-in */
+  transform: translateY(20px); /* Initial state for fade-in */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.landing-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.landing-btn-login {
+  background-color: #4B3621;
+  color: white;
+}
+
+.landing-btn-join {
+  background-color: #8B5E3C;
+  color: white;
+}
+
+/* Floating decorative elements */
+.floating-element {
+  position: absolute;
+  top: 30%;
+  left: 20%;
+  animation: float 6s ease-in-out infinite;
+  opacity: 0.2;
+}
+
+/* Animation for floating element */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+/* Fade-in animation target */
+.fade-in.is-intersecting { /* Class added by Intersection Observer */
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .landing-title {
+    font-size: 2.2rem;
+  }
+
+  .landing-subtitle {
+    font-size: 1rem;
+  }
+
+  .landing-description {
+    font-size: 0.9rem;
+    padding: 0 1rem; /* Add some horizontal padding */
+  }
+
+  .landing-nav {
+    flex-direction: column; /* Stack buttons on small screens */
+    gap: 1rem;
+  }
+
+  .landing-btn {
+    width: 80%; /* Make buttons wider */
+    text-align: center;
+  }
+}
